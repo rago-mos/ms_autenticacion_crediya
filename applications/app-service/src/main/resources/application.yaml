@@ -3,7 +3,7 @@ server:
   port: 8080
 spring:
   application:
-    name: ms_autenticacion
+    name: ms_autenticacion_crediya
   devtools:
     add-properties: false
   h2:

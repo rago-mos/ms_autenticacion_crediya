@@ -12,7 +12,7 @@ buildCache {
     }
 }
 
-rootProject.name = 'ms_autenticacion'
+rootProject.name = 'ms_autenticacion_crediya'
 
 include ':app-service'
 include ':model'
