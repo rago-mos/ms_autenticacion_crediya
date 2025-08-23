@@ -54,7 +54,7 @@ subprojects {
     test.finalizedBy(project.tasks.jacocoTestReport)
 
     pitest {
-        targetClasses = ['co.com.bancolombia.*']
+        targetClasses = ['co.com.crediya.*']
         excludedClasses = []
         excludedTestClasses = []
         pitestVersion = '1.20.1'
