@@ -1,13 +1,16 @@
 package co.com.crediya.config;
 
+import co.com.crediya.r2dbc.RoleReactiveRepository;
+import co.com.crediya.r2dbc.UserReactiveRepository;
+import co.com.crediya.r2dbc.config.MysqlConnectionProperties;
 import org.junit.jupiter.api.Test;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
+import org.mockito.Mockito;
+import org.springframework.context.annotation.*;
+import org.springframework.transaction.reactive.TransactionalOperator;
+
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class UseCasesConfigTest {
+class UseCasesConfigTest {
 
     @Test
     void testUseCaseBeansExist() {
@@ -28,11 +31,58 @@ public class UseCasesConfigTest {
 
     @Configuration
     @Import(UseCasesConfig.class)
+    @ComponentScan(basePackages = {
+            "co.com.crediya.usecase",
+            "co.com.crediya.r2dbc", // Aquí vive tu implementación
+            "co.com.crediya.model"  // Si necesitas escanear interfaces o modelos
+    })
     static class TestConfig {
 
         @Bean
         public MyUseCase myUseCase() {
             return new MyUseCase();
+        }
+
+        @Bean
+        public RoleReactiveRepository roleReactiveRepository() {
+            return Mockito.mock(RoleReactiveRepository.class);
+        }
+
+        @Bean
+        public UserReactiveRepository userReactiveRepository() {
+            return Mockito.mock(UserReactiveRepository.class);
+        }
+
+        @Bean
+        public org.reactivecommons.utils.ObjectMapper reactiveCommonsObjectMapper() {
+            return new org.reactivecommons.utils.ObjectMapper() {
+                @Override
+                public <T> T map(Object src, Class<T> target) {
+                    return null;
+                }
+
+                @Override
+                public <T> T mapBuilder(Object src, Class<T> target) {
+                    return null;
+                }
+            };
+        }
+
+        @Bean
+        public TransactionalOperator transactionalOperator() {
+            return Mockito.mock(TransactionalOperator.class);
+        }
+
+        @Bean
+        public MysqlConnectionProperties mysqlConnectionProperties() {
+            return new MysqlConnectionProperties(
+                    "localhost",
+                    3306,
+                    "testdb",
+                    "test",
+                    "test",
+                    "test"
+            );
         }
     }
 
