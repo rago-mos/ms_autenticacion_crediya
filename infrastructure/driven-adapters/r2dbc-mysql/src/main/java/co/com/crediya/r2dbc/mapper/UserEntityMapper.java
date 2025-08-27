@@ -17,7 +17,7 @@ public class UserEntityMapper {
                 .birthDate(user.getBirthDate())
                 .address(user.getAddress())
                 .phoneNumber(user.getPhoneNumber())
-                .role(user.getRole().getIdRol())
+                .role(user.getRole() != null ? user.getRole().getIdRol() : null)
                 .baseSalary(user.getBaseSalary())
                 .build();
     }
