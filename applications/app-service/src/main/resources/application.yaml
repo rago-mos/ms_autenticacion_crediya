@@ -1,14 +1,59 @@
-##Spring Configuration
 server:
-  port: 8080
+  port: 8001
 spring:
   application:
-    name: ms_autenticacion_crediya
+    name: "ms_autenticacion_crediya"
   devtools:
     add-properties: false
   h2:
     console:
       enabled: true
-      path: /h2
+      path: "/h2"
   profiles:
-    include:
+    include: null
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    # Flyway usará su propio DataSource JDBC si se provee esta URL
+    url: "jdbc:mysql://${adapters.r2dbc.host}:${adapters.r2dbc.port}/${adapters.r2dbc.database}?serverTimezone=America/Bogota&useSSL=false&allowPublicKeyRetrieval=true"
+    user: "${adapters.r2dbc.username}"
+    password: "${adapters.r2dbc.password}"
+    locations: "classpath:db/migration"
+    connect-retries: 3
+    placeholders:
+      db: "${adapters.r2dbc.database}"
+adapters:
+  r2dbc:
+    host: "localhost"
+    port: 3306
+    database: "ms_autenticacion"
+    username: "root"
+    password: "tarah723"
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health,prometheus"
+  endpoint:
+    health:
+      probes:
+        enabled: true
+cors:
+  allowed-origins: "http://localhost:4200,http://localhost:8001"
+logging:
+  level:
+    root: INFO
+    org.springframework.web: ERROR
+    com.co.crediya.api: DEBUG
+
+# Swagger
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
+    tagsSorter: alpha
+    display-request-duration: true
+    doc-expansion: none
+    filter: true
