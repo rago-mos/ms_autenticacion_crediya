@@ -27,7 +27,7 @@ class UserMapperTest {
                 "Rubén",
                 "Gómez",
                 "ruben@example.com",
-                123456789L,
+                "123456789",
                 LocalDate.of(1990, 1, 1),
                 "Palmira",
                 "3001234567",
@@ -57,7 +57,7 @@ class UserMapperTest {
                 "Rubén",
                 "Gómez",
                 "ruben@example.com",
-                123456789L,
+                "123456789",
                 LocalDate.of(1990, 1, 1),
                 "Palmira",
                 "3001234567",
@@ -76,7 +76,7 @@ class UserMapperTest {
                 "Rubén",
                 "Gómez",
                 "ruben@example.com",
-                123456789L,
+                "123456789",
                 LocalDate.of(1990, 1, 1),
                 "Palmira",
                 "3001234567",
@@ -95,7 +95,7 @@ class UserMapperTest {
                 .firstName("Rubén")
                 .lastName("Gómez")
                 .email("ruben@example.com")
-                .identityDocument(123456789L)
+                .identityDocument("123456789")
                 .birthDate(LocalDate.of(1990, 1, 1))
                 .address("Palmira")
                 .phoneNumber("3001234567")
@@ -122,7 +122,7 @@ class UserMapperTest {
                 .firstName("Rubén")
                 .lastName("Gómez")
                 .email("ruben@example.com")
-                .identityDocument(123456789L)
+                .identityDocument("123456789")
                 .birthDate(LocalDate.of(1990, 1, 1))
                 .address("Palmira")
                 .phoneNumber("3001234567")

@@ -84,7 +84,7 @@ class RouterRestTest {
                 .firstName("Pepe")
                 .lastName("Perez")
                 .email("pepe@gmail.com")
-                .identityDocument(328472388273823L)
+                .identityDocument("328472388273823")
                 .birthDate(LocalDate.now())
                 .address("Cr 5 N° 798")
                 .phoneNumber("36127328237")
@@ -98,7 +98,7 @@ class RouterRestTest {
                 "Pepe",
                 "Perez",
                 "pepe@gmail.com",
-                328472388273823L,
+                "328472388273823",
                 LocalDate.now(),
                 "Cr 5 N° 798",
                 "36127328237",
