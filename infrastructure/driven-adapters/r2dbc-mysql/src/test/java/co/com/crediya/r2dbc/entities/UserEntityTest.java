@@ -18,7 +18,7 @@ class UserEntityTest {
                 .firstName("Rubén")
                 .lastName("Gómez")
                 .email("ruben@example.com")
-                .identityDocument(123456789L)
+                .identityDocument("123456789")
                 .birthDate(LocalDate.of(1990, 1, 1))
                 .address("Palmira")
                 .phoneNumber("3001234567")
@@ -29,7 +29,7 @@ class UserEntityTest {
         assertEquals("Rubén", entity.getFirstName());
         assertEquals("Gómez", entity.getLastName());
         assertEquals("ruben@example.com", entity.getEmail());
-        assertEquals(123456789L, entity.getIdentityDocument());
+        assertEquals("123456789", entity.getIdentityDocument());
         assertEquals(LocalDate.of(1990, 1, 1), entity.getBirthDate());
         assertEquals("Palmira", entity.getAddress());
         assertEquals("3001234567", entity.getPhoneNumber());
@@ -62,7 +62,7 @@ class UserEntityTest {
 
     @Test
     void shouldCreateUserEntityWithAllArgsConstructor() {
-        UserEntity entity = new UserEntity(1L, "Rubén", "Gómez", "ruben@example.com", 123L,
+        UserEntity entity = new UserEntity(1L, "Rubén", "Gómez", "ruben@example.com", "123",
                 LocalDate.of(1990, 1, 1), "Palmira", "3001234567", 1, new BigDecimal("5000000"));
 
         assertNotNull(entity);

@@ -30,7 +30,7 @@ public class UserEntity {
     private String email;
 
     @Column("documento_identidad")
-    private Long identityDocument;
+    private String identityDocument;
 
     @Column("fecha_nacimiento")
     private LocalDate birthDate;

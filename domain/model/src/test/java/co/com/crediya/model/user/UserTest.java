@@ -18,7 +18,7 @@ class UserTest {
                 .firstName("Rubén")
                 .lastName("Gómez")
                 .email("ruben@example.com")
-                .identityDocument(123456789L)
+                .identityDocument("123456789")
                 .birthDate(LocalDate.of(1990, 1, 1))
                 .address("Palmira")
                 .phoneNumber("3001234567")
@@ -29,7 +29,7 @@ class UserTest {
         assertEquals("Rubén", user.getFirstName());
         assertEquals("Gómez", user.getLastName());
         assertEquals("ruben@example.com", user.getEmail());
-        assertEquals(123456789L, user.getIdentityDocument());
+        assertEquals("123456789", user.getIdentityDocument());
         assertEquals(LocalDate.of(1990, 1, 1), user.getBirthDate());
         assertEquals("Palmira", user.getAddress());
         assertEquals("3001234567", user.getPhoneNumber());
@@ -67,7 +67,7 @@ class UserTest {
     @Test
     void shouldCreateUserWithAllArgsConstructor() {
         Role role = new Role(1, "ADMIN", "ROLE_ADMIN");
-        User user = new User("Rubén", "Gómez", "ruben@example.com", 123L,
+        User user = new User("Rubén", "Gómez", "ruben@example.com", "123",
                 LocalDate.of(1990, 1, 1), "Palmira", "3001234567", role, new BigDecimal("5000000"));
 
         assertNotNull(user);

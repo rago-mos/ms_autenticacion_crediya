@@ -15,7 +15,7 @@ class CreateUserResponseTest {
                 .firstName("Rubén")
                 .lastName("Gómez")
                 .email("ruben@example.com")
-                .identityDocument(123456789L)
+                .identityDocument("123456789")
                 .birthDate(LocalDate.of(1990, 1, 1))
                 .address("Palmira")
                 .phoneNumber("3001234567")
@@ -26,7 +26,7 @@ class CreateUserResponseTest {
         assertEquals("Rubén", response.firstName());
         assertEquals("Gómez", response.lastName());
         assertEquals("ruben@example.com", response.email());
-        assertEquals(123456789L, response.identityDocument());
+        assertEquals("123456789", response.identityDocument());
         assertEquals(LocalDate.of(1990, 1, 1), response.birthDate());
         assertEquals("Palmira", response.address());
         assertEquals("3001234567", response.phoneNumber());
@@ -40,7 +40,7 @@ class CreateUserResponseTest {
                 .firstName("Rubén")
                 .lastName("Gómez")
                 .email("ruben@example.com")
-                .identityDocument(123456789L)
+                .identityDocument("123456789")
                 .birthDate(LocalDate.of(1990, 1, 1))
                 .address("Palmira")
                 .phoneNumber("3001234567")
@@ -52,7 +52,7 @@ class CreateUserResponseTest {
                 .firstName("Rubén")
                 .lastName("Gómez")
                 .email("ruben@example.com")
-                .identityDocument(123456789L)
+                .identityDocument("123456789")
                 .birthDate(LocalDate.of(1990, 1, 1))
                 .address("Palmira")
                 .phoneNumber("3001234567")
