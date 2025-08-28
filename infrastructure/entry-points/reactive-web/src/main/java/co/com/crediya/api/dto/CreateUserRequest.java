@@ -15,7 +15,8 @@ public record CreateUserRequest(
         @Email(message = "The email format is not valid")
         String email,
 
-        Long identityDocument,
+        @Pattern(regexp = "^\\d{1,20}$", message = "The field must contain only numeric digits and must not exceed 20 characters")
+        String identityDocument,
 
         LocalDate birthDate,
 

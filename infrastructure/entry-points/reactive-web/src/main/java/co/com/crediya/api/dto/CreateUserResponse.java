@@ -11,7 +11,7 @@ public record CreateUserResponse (
         String firstName,
         String lastName,
         String email,
-        Long identityDocument,
+        String identityDocument,
         LocalDate birthDate,
         String address,
         String phoneNumber,

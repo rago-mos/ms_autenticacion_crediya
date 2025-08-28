@@ -17,7 +17,7 @@ public class User {
     private String firstName;
     private String lastName;
     private String email;
-    private Long identityDocument;
+    private String identityDocument;
     private LocalDate birthDate;
     private String address;
     private String phoneNumber;
