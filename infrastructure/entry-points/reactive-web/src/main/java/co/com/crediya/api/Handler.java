@@ -30,7 +30,7 @@ public class Handler {
                             createUserUseCase.execute(userMapper.toModel(validated))
                                 .flatMap(created -> {
                                     log.info("User created successfully: {}", created.getEmail());
-                                    return ServerResponse.status(201).bodyValue("User created successfully");
+                                    return ServerResponse.status(201).bodyValue(userMapper.toResponse(created));
                                 })
                         )
             );
