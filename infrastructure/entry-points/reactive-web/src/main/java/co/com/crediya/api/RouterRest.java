@@ -39,7 +39,7 @@ public class RouterRest {
                     responses = {@ApiResponse(responseCode = "201",
                             description = "User created successfully",
                             content = @Content(mediaType = "application/json",
-                                    schema = @Schema(type = "string", example = "User created successfully")
+                                    schema = @Schema(implementation = CreateUserRequest.class)
                             )
                     ), @ApiResponse(responseCode = "400",
                             description = "Invalid request format",

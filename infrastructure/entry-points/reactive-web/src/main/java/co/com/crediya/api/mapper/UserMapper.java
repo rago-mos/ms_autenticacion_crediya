@@ -1,6 +1,7 @@
 package co.com.crediya.api.mapper;
 
 import co.com.crediya.api.dto.CreateUserRequest;
+import co.com.crediya.api.dto.CreateUserResponse;
 import co.com.crediya.model.role.Role;
 import co.com.crediya.model.user.User;
 import org.springframework.stereotype.Component;
@@ -19,6 +20,20 @@ public class UserMapper {
                 .phoneNumber(dto.phoneNumber())
                 .role(buildRole(dto.rol()))
                 .baseSalary(dto.baseSalary())
+                .build();
+    }
+
+    public CreateUserResponse toResponse(User user) {
+        return CreateUserResponse.builder()
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .email(user.getEmail())
+                .identityDocument(user.getIdentityDocument())
+                .birthDate(user.getBirthDate())
+                .address(user.getAddress())
+                .phoneNumber(user.getPhoneNumber())
+                .rol(user.getRole() != null ? user.getRole().getName() : null)
+                .baseSalary(user.getBaseSalary())
                 .build();
     }
 
