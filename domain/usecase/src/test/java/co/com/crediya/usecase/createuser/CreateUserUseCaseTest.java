@@ -17,7 +17,7 @@ import reactor.test.StepVerifier;
 import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class CreateUserUseCaseTest {
@@ -165,5 +165,41 @@ class CreateUserUseCaseTest {
                 .expectErrorMatches(e -> e instanceof RuntimeException &&
                         e.getMessage().contains("DB error"))
                 .verify();
+    }
+
+    @Test
+    void shouldReturnTrueWhenUserExistsByDocument() {
+        // Arrange
+        String document = "328472388273823";
+
+        when(userRepository.existsByIdentityDocument(document)).thenReturn(Mono.just(true));
+
+        // Act
+        Mono<Boolean> result = useCase.existsUserByDocument(document);
+
+        // Assert
+        StepVerifier.create(result)
+                .expectNext(true)
+                .verifyComplete();
+
+        verify(userRepository).existsByIdentityDocument(document);
+    }
+
+    @Test
+    void shouldReturnFalseWhenUserDoesNotExistByDocument() {
+        // Arrange
+        String document = "000000000000000";
+
+        when(userRepository.existsByIdentityDocument(document)).thenReturn(Mono.just(false));
+
+        // Act
+        Mono<Boolean> result = useCase.existsUserByDocument(document);
+
+        // Assert
+        StepVerifier.create(result)
+                .expectNext(false)
+                .verifyComplete();
+
+        verify(userRepository).existsByIdentityDocument(document);
     }
 }
