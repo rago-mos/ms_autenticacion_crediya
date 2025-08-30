@@ -20,6 +20,11 @@ public class CreateUserUseCase implements ICreateUserUseCase {
                 .flatMap(userRepository::saveUser);
     }
 
+    @Override
+    public Mono<Boolean> existsUserByDocument(String document) {
+        return userRepository.existsByIdentityDocument(document);
+    }
+
     private Mono<User> validateData(User user) {
         return UserValidator.validateFirtsName(user.getFirstName())
                 .then(UserValidator.validateLastName(user.getLastName()))

@@ -10,12 +10,16 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.reactivecommons.utils.ObjectMapper;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import static org.mockito.Mockito.when;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class UserReactiveRepositoryAdapterTest {
@@ -78,6 +82,26 @@ class UserReactiveRepositoryAdapterTest {
         when(repository.existsByEmail("ruben@example.com")).thenReturn(Mono.just(false));
 
         StepVerifier.create(adapter.existsByEmail("ruben@example.com"))
+                .expectNext(false)
+                .verifyComplete();
+    }
+
+    @Test
+    void shouldReturnTrueWhenDocumentExists() {
+        String document = "123456789";
+        when(repository.existsByIdentityDocument(document)).thenReturn(Mono.just(true));
+
+        StepVerifier.create(adapter.existsByIdentityDocument(document))
+                .expectNext(true)
+                .verifyComplete();
+    }
+
+    @Test
+    void shouldReturnFalseWhenDocumentDoesNotExist() {
+        String document = "987654321";
+        when(repository.existsByIdentityDocument(document)).thenReturn(Mono.just(false));
+
+        StepVerifier.create(adapter.existsByIdentityDocument(document))
                 .expectNext(false)
                 .verifyComplete();
     }

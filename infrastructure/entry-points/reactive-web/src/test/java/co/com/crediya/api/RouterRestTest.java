@@ -78,6 +78,20 @@ class RouterRestTest {
                 });
     }
 
+    @Test
+    void shouldReturnUserExistenceByDocument() {
+        String document = "328472388273823";
+
+        when(userUseCase.existsUserByDocument(document)).thenReturn(Mono.just(true));
+
+        webTestClient.get()
+                .uri("/api/v1/usuarios/" + document)
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.['user_exists: ']").isEqualTo(true);
+    }
 
     private User userMock() {
         return User.builder()

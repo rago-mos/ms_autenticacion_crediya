@@ -11,7 +11,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
+import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Mono;
+
+import java.util.Map;
+
+import static co.com.crediya.api.utils.Constant.MISSING_PATH_VARIABLE;
+import static co.com.crediya.api.utils.Constant.PATH_VARIABLE;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+
 
 @Component
 @RequiredArgsConstructor
@@ -34,6 +42,19 @@ public class Handler {
                                 })
                         )
             );
+    }
+
+    public Mono<ServerResponse> listenGetUserByDocument(ServerRequest request) {
+
+        return Mono.justOrEmpty(request.pathVariable(PATH_VARIABLE))
+            .map(String::trim)
+            .switchIfEmpty(Mono.error(new ResponseStatusException(BAD_REQUEST, MISSING_PATH_VARIABLE)))
+            .flatMap(createUserUseCase::existsUserByDocument)
+            .flatMap(exists -> {
+                log.info("User exists successfully: {}", exists);
+                return ServerResponse.status(200)
+                        .bodyValue(Map.of("user_exists: ", exists));
+            });
     }
 
 }
