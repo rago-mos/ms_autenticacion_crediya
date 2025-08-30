@@ -6,4 +6,5 @@ import reactor.core.publisher.Mono;
 public interface ICreateUserUseCase {
 
     Mono<User> execute(User user);
+    Mono<Boolean> existsUserByDocument(String document);
 }
