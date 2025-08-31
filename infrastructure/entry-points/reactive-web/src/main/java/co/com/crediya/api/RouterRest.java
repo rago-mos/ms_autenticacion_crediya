@@ -1,6 +1,7 @@
 package co.com.crediya.api;
 
 import co.com.crediya.api.dto.CreateUserRequest;
+import co.com.crediya.api.dto.CreateUserResponse;
 import co.com.crediya.api.dto.ErrorResponseHandler;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -47,7 +48,7 @@ public class RouterRest {
                             responses = {@ApiResponse(responseCode = "201",
                                     description = "User created successfully",
                                     content = @Content(mediaType = "application/json",
-                                            schema = @Schema(implementation = CreateUserRequest.class)
+                                            schema = @Schema(implementation = CreateUserResponse.class)
                                     )
                             ), @ApiResponse(responseCode = "400",
                                     description = "Invalid request format",
@@ -77,11 +78,11 @@ public class RouterRest {
                     beanClass = Handler.class,
                     beanMethod = "listenGetUserByDocument",
                     operation = @Operation(
-                            operationId = "existsUserByDocument",
+                            operationId = "userExistsByDocument",
                             summary = "Verify if a user exists by document number",
                             parameters = {
                                     @Parameter(
-                                            name = "document",
+                                            name = "documentIdentity",
                                             in = ParameterIn.PATH,
                                             required = true,
                                             description = "User's document number to verify."
@@ -94,8 +95,8 @@ public class RouterRest {
                                             content = @Content(
                                                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                                                     examples = @ExampleObject(
-                                                            name = "existsTrue",
-                                                            value = "{\"user_exists\": true}"
+                                                            name = "exists",
+                                                            value = "{\"exists\": true}"
                                                     )
                                             )
                                     ),

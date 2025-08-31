@@ -51,9 +51,9 @@ public class Handler {
             .switchIfEmpty(Mono.error(new ResponseStatusException(BAD_REQUEST, MISSING_PATH_VARIABLE)))
             .flatMap(createUserUseCase::existsUserByDocument)
             .flatMap(exists -> {
-                log.info("User exists successfully: {}", exists);
+                log.info("User exists: {}", exists);
                 return ServerResponse.status(200)
-                        .bodyValue(Map.of("user_exists: ", exists));
+                        .bodyValue(Map.of("exists", exists));
             });
     }
 

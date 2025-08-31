@@ -39,7 +39,7 @@ management:
       probes:
         enabled: true
 cors:
-  allowed-origins: "http://localhost:4200,http://localhost:8001"
+  allowed-origins: "http://localhost:4200,http://localhost:8002"
 logging:
   level:
     root: INFO
