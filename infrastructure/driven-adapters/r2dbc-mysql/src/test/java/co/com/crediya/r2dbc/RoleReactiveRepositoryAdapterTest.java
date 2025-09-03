@@ -1,5 +1,6 @@
 package co.com.crediya.r2dbc;
 
+import co.com.crediya.model.exception.NotFoundException;
 import co.com.crediya.model.role.Role;
 import co.com.crediya.r2dbc.entities.RoleEntity;
 import org.junit.jupiter.api.BeforeEach;
@@ -61,10 +62,20 @@ class RoleReactiveRepositoryAdapterTest {
 
         StepVerifier.create(adapter.findByName("ADMIN"))
                 .expectErrorMatches(e -> e instanceof Exception &&
-                        e.getMessage().contains("Role not found"))
+                        e.getMessage().contains("role not found"))
                 .verify();
 
         verify(repository).findByName("ADMIN");
         verifyNoInteractions(mapper);
+    }
+
+    @Test
+    void shouldThrowNotFoundExceptionWhenEntityDoesNotExist() {
+        when(repository.findById(99)).thenReturn(Mono.empty());
+
+        StepVerifier.create(adapter.findById(99))
+                .expectErrorMatches(e -> e instanceof NotFoundException &&
+                        e.getMessage().equals("role not found"))
+                .verify();
     }
 }

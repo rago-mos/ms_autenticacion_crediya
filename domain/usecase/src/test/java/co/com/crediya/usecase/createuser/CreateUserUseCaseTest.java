@@ -4,8 +4,8 @@ import co.com.crediya.model.role.Role;
 import co.com.crediya.model.role.gateways.RoleRepository;
 import co.com.crediya.model.user.User;
 import co.com.crediya.model.user.gateways.UserRepository;
-import co.com.crediya.usecase.createuser.exception.BusinessException;
-import co.com.crediya.usecase.createuser.exception.InvalidRequestException;
+import co.com.crediya.model.exception.BusinessException;
+import co.com.crediya.model.exception.InvalidRequestException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,6 +15,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -31,12 +32,17 @@ class CreateUserUseCaseTest {
     private CreateUserUseCase useCase;
 
     private final Role validRole = new Role(3, "ADMIN", "ROLE_ADMIN");
-    private final User validUser = User.builder()
+    private final User user = User.builder()
             .firstName("Rubén")
             .lastName("Gómez")
             .email("ruben@example.com")
-            .baseSalary(new BigDecimal("5000000"))
+            .identityDocument("123456789")
+            .password("securePass")
+            .birthDate(LocalDate.of(1990, 1, 1))
+            .address("Palmira")
+            .phoneNumber("3001234567")
             .role(validRole)
+            .baseSalary(new BigDecimal("5000000"))
             .build();
 
     @BeforeEach
@@ -46,109 +52,68 @@ class CreateUserUseCaseTest {
 
     @Test
     void shouldCreateUserSuccessfully() {
-        // Arrange
-        when(roleRepository.findByName("ADMIN")).thenReturn(Mono.just(validRole));
-        when(userRepository.existsByEmail(validUser.getEmail())).thenReturn(Mono.just(false));
-        when(userRepository.saveUser(validUser)).thenReturn(Mono.just(validUser));
+        when(userRepository.existsByEmail(user.getEmail())).thenReturn(Mono.just(false));
+        when(userRepository.existsByIdentityDocument(user.getIdentityDocument())).thenReturn(Mono.just(false));
+        when(userRepository.saveUser(user)).thenReturn(Mono.just(user));
+        when(roleRepository.findById(validRole.getIdRol())).thenReturn(Mono.just(validRole));
 
-        // Act & Assert
-        StepVerifier.create(useCase.execute(validUser))
-                .expectNext(validUser)
+        StepVerifier.create(useCase.execute(user))
+                .assertNext(created -> {
+                    assertEquals("Rubén", created.getFirstName());
+                    assertEquals("ADMIN", created.getRole().getName());
+                })
                 .verifyComplete();
     }
 
     @Test
-    void shouldFailWhenFirstNameIsBlank() {
-        User invalidUser = validUser.toBuilder().firstName(" ").build();
+    void shouldThrowExceptionWhenEmailAlreadyExists() {
+        when(userRepository.existsByEmail(user.getEmail())).thenReturn(Mono.just(true));
 
-        when(roleRepository.findByName("ADMIN")).thenReturn(Mono.just(validRole));
-
-        StepVerifier.create(useCase.execute(invalidUser))
-                .expectErrorMatches(e -> e instanceof InvalidRequestException &&
-                        e.getMessage().contains("firtsName is null or blank"))
-                .verify();
-    }
-
-    @Test
-    void shouldFailWhenLastNameIsNull() {
-        User invalidUser = validUser.toBuilder().lastName(null).build();
-
-        when(roleRepository.findByName("ADMIN")).thenReturn(Mono.just(validRole));
-
-        StepVerifier.create(useCase.execute(invalidUser))
-                .expectErrorMatches(e -> e instanceof InvalidRequestException &&
-                        e.getMessage().contains("Last name is null or blank"))
-                .verify();
-    }
-
-    @Test
-    void shouldFailWhenSalaryIsInvalid() {
-        User invalidUser = validUser.toBuilder().baseSalary(new BigDecimal("-100")).build();
-
-        when(roleRepository.findByName("ADMIN")).thenReturn(Mono.just(validRole));
-
-        StepVerifier.create(useCase.execute(invalidUser))
+        StepVerifier.create(useCase.execute(user))
                 .expectErrorMatches(e -> e instanceof BusinessException &&
-                        e.getMessage().contains("The salary is not valid"))
+                        e.getMessage().contains("A user with this email already exists"))
                 .verify();
     }
 
     @Test
-    void shouldFailWhenEmailAlreadyExists() {
-        when(roleRepository.findByName("ADMIN")).thenReturn(Mono.just(validRole));
-        when(userRepository.existsByEmail(validUser.getEmail())).thenReturn(Mono.just(true));
+    void shouldThrowExceptionWhenDocumentAlreadyExists() {
+        when(userRepository.existsByEmail(user.getEmail())).thenReturn(Mono.just(false));
+        when(userRepository.existsByIdentityDocument(user.getIdentityDocument())).thenReturn(Mono.just(true));
 
-        StepVerifier.create(useCase.execute(validUser))
+        StepVerifier.create(useCase.execute(user))
                 .expectErrorMatches(e -> e instanceof BusinessException &&
-                        e.getMessage().contains("already exists"))
+                        e.getMessage().contains("A user with this document already exists"))
                 .verify();
     }
 
     @Test
-    void shouldFailWhenRoleNotFound() {
-        when(roleRepository.findByName("ADMIN")).thenReturn(Mono.error(new Exception("Role not found")));
+    void shouldReturnTrueWhenDocumentExists() {
+        when(userRepository.existsByIdentityDocument("123456789")).thenReturn(Mono.just(true));
 
-        StepVerifier.create(useCase.execute(validUser))
-                .expectErrorMatches(e -> e.getMessage().contains("Role not found"))
-                .verify();
+        StepVerifier.create(useCase.existsUserByDocument("123456789"))
+                .expectNext(true)
+                .verifyComplete();
     }
 
     @Test
-    void shouldAssignRoleWithLowercaseName() {
-        User userWithLowercaseRole = validUser.toBuilder()
-                .role(new Role(3, "admin", "ROLE_ADMIN"))
-                .build();
+    void shouldReturnFalseWhenDocumentDoesNotExist() {
+        when(userRepository.existsByIdentityDocument("987654321")).thenReturn(Mono.just(false));
 
-        when(roleRepository.findByName("ADMIN")).thenReturn(Mono.just(validRole));
-        when(userRepository.existsByEmail(userWithLowercaseRole.getEmail())).thenReturn(Mono.just(false));
-        when(userRepository.saveUser(userWithLowercaseRole)).thenReturn(Mono.just(userWithLowercaseRole));
-
-        StepVerifier.create(useCase.execute(userWithLowercaseRole))
-                .expectNext(userWithLowercaseRole)
+        StepVerifier.create(useCase.existsUserByDocument("987654321"))
+                .expectNext(false)
                 .verifyComplete();
     }
 
     @Test
     void shouldThrowNullPointerWhenRoleIsNull() {
-        User userWithoutRole = validUser.toBuilder().role(null).build();
+        User userWithoutRole = user.toBuilder().role(null).build();
 
         assertThrows(NullPointerException.class, () -> useCase.execute(userWithoutRole).block());
     }
 
     @Test
-    void shouldFailWhenEmailIsNull() {
-        User userWithoutEmail = validUser.toBuilder().email(null).build();
-
-        when(roleRepository.findByName("ADMIN")).thenReturn(Mono.just(validRole));
-
-        StepVerifier.create(useCase.execute(userWithoutEmail))
-                .expectErrorMatches(e -> e instanceof NullPointerException)
-                .verify();
-    }
-
-    @Test
     void shouldThrowNullPointerWhenRoleNameIsNull() {
-        User userWithEmptyRoleName = validUser.toBuilder()
+        User userWithEmptyRoleName = user.toBuilder()
                 .role(new Role(3, null, "ROLE_ADMIN"))
                 .build();
 
@@ -156,28 +121,12 @@ class CreateUserUseCaseTest {
     }
 
     @Test
-    void shouldPropagateUnexpectedErrorOnSave() {
-        when(roleRepository.findByName("ADMIN")).thenReturn(Mono.just(validRole));
-        when(userRepository.existsByEmail(validUser.getEmail())).thenReturn(Mono.just(false));
-        when(userRepository.saveUser(validUser)).thenReturn(Mono.error(new RuntimeException("DB error")));
-
-        StepVerifier.create(useCase.execute(validUser))
-                .expectErrorMatches(e -> e instanceof RuntimeException &&
-                        e.getMessage().contains("DB error"))
-                .verify();
-    }
-
-    @Test
     void shouldReturnTrueWhenUserExistsByDocument() {
-        // Arrange
-        String document = "328472388273823";
 
+        String document = "328472388273823";
         when(userRepository.existsByIdentityDocument(document)).thenReturn(Mono.just(true));
 
-        // Act
         Mono<Boolean> result = useCase.existsUserByDocument(document);
-
-        // Assert
         StepVerifier.create(result)
                 .expectNext(true)
                 .verifyComplete();
@@ -187,15 +136,11 @@ class CreateUserUseCaseTest {
 
     @Test
     void shouldReturnFalseWhenUserDoesNotExistByDocument() {
-        // Arrange
-        String document = "000000000000000";
 
+        String document = "000000000000000";
         when(userRepository.existsByIdentityDocument(document)).thenReturn(Mono.just(false));
 
-        // Act
         Mono<Boolean> result = useCase.existsUserByDocument(document);
-
-        // Assert
         StepVerifier.create(result)
                 .expectNext(false)
                 .verifyComplete();

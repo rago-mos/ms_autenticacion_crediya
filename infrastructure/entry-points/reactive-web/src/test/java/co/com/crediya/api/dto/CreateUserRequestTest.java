@@ -28,10 +28,11 @@ class CreateUserRequestTest {
                 "Gómez",
                 "ruben@example.com",
                 "123456789",
+                "123456789",
                 LocalDate.of(1990, 1, 1),
                 "Palmira",
                 "3001234567",
-                "ADMIN",
+                1,
                 new BigDecimal("5000000")
         );
 
@@ -46,10 +47,11 @@ class CreateUserRequestTest {
                 "Gómez",
                 "correo-invalido",
                 "123456789",
+                "123456789",
                 LocalDate.of(1990, 1, 1),
                 "Palmira",
                 "3001234567",
-                "ADMIN",
+                1,
                 new BigDecimal("5000000")
         );
 
@@ -65,6 +67,7 @@ class CreateUserRequestTest {
                 "Gómez",
                 null,
                 "123456789",
+                "123456789",
                 LocalDate.of(1990, 1, 1),
                 "Palmira",
                 "3001234567",
@@ -75,7 +78,7 @@ class CreateUserRequestTest {
         Set<ConstraintViolation<CreateUserRequest>> violations = validator.validate(request);
         assertEquals(3, violations.size());
         assertTrue(violations.stream().anyMatch(v -> v.getPropertyPath().toString().equals("email")));
-        assertTrue(violations.stream().anyMatch(v -> v.getPropertyPath().toString().equals("rol")));
+        assertTrue(violations.stream().anyMatch(v -> v.getPropertyPath().toString().equals("idRol")));
         assertTrue(violations.stream().anyMatch(v -> v.getPropertyPath().toString().equals("baseSalary")));
     }
 
@@ -86,10 +89,11 @@ class CreateUserRequestTest {
                 "Gómez",
                 "ruben@example.com",
                 "123456789",
+                "123456789",
                 LocalDate.of(1990, 1, 1),
                 "Palmira",
                 "ABC123",
-                "ADMIN",
+                1,
                 new BigDecimal("5000000")
         );
 

@@ -67,7 +67,7 @@ class UserTest {
     @Test
     void shouldCreateUserWithAllArgsConstructor() {
         Role role = new Role(1, "ADMIN", "ROLE_ADMIN");
-        User user = new User("Rubén", "Gómez", "ruben@example.com", "123",
+        User user = new User("Rubén", "Gómez", "ruben@example.com", "123", "123",
                 LocalDate.of(1990, 1, 1), "Palmira", "3001234567", role, new BigDecimal("5000000"));
 
         assertNotNull(user);

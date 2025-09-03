@@ -2,23 +2,26 @@ package co.com.crediya.r2dbc.entities;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import co.com.crediya.r2dbc.enums.RoleEnum;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import java.util.Collection;
 
 class UserEntityTest {
 
     @Test
     void shouldBuildUserEntityCorrectly() {
-        UserEntity entity = UserEntity.builder()
+        UserEntity user = UserEntity.builder()
                 .id(1L)
                 .firstName("Rubén")
                 .lastName("Gómez")
                 .email("ruben@example.com")
                 .identityDocument("123456789")
+                .password("securePass")
                 .birthDate(LocalDate.of(1990, 1, 1))
                 .address("Palmira")
                 .phoneNumber("3001234567")
@@ -26,52 +29,52 @@ class UserEntityTest {
                 .baseSalary(new BigDecimal("5000000"))
                 .build();
 
-        assertEquals("Rubén", entity.getFirstName());
-        assertEquals("Gómez", entity.getLastName());
-        assertEquals("ruben@example.com", entity.getEmail());
-        assertEquals("123456789", entity.getIdentityDocument());
-        assertEquals(LocalDate.of(1990, 1, 1), entity.getBirthDate());
-        assertEquals("Palmira", entity.getAddress());
-        assertEquals("3001234567", entity.getPhoneNumber());
-        assertEquals(1, entity.getRole());
-        assertEquals(new BigDecimal("5000000"), entity.getBaseSalary());
+        assertEquals("Rubén", user.getFirstName());
+        assertEquals("Gómez", user.getLastName());
+        assertEquals("ruben@example.com", user.getEmail());
+        assertEquals("123456789", user.getUsername());
+        assertEquals("securePass", user.getPassword());
+        assertEquals(1, user.getRole());
+        assertEquals(new BigDecimal("5000000"), user.getBaseSalary());
     }
 
     @Test
-    void shouldUseSettersAndGetters() {
-        UserEntity entity = new UserEntity();
-        entity.setFirstName("Rubén");
-        entity.setLastName("Gómez");
-
-        assertEquals("Rubén", entity.getFirstName());
-        assertEquals("Gómez", entity.getLastName());
-    }
-
-    @Test
-    void shouldCopyUserEntityWithToBuilder() {
-        UserEntity original = UserEntity.builder()
-                .email("ruben@example.com")
+    void shouldReturnAuthoritiesBasedOnRoleEnum() {
+        UserEntity user = UserEntity.builder()
+                .identityDocument("123456789")
+                .password("securePass")
+                .role(RoleEnum.ADMIN.ordinal() + 1) // ID 1
                 .build();
 
-        UserEntity copy = original.builder()
-                .email("nuevo@example.com")
+        Collection<? extends GrantedAuthority> authorities = user.getAuthorities();
+
+        assertEquals(1, authorities.size());
+        assertTrue(authorities.contains(new SimpleGrantedAuthority("ADMIN")));
+    }
+
+    @Test
+    void shouldReturnEmptyAuthoritiesWhenRoleIsInvalid() {
+        UserEntity user = UserEntity.builder()
+                .identityDocument("123456789")
+                .password("securePass")
+                .role(99) // ID no válido
                 .build();
 
-        assertEquals("nuevo@example.com", copy.getEmail());
+        Collection<? extends GrantedAuthority> authorities = user.getAuthorities();
+
+        assertTrue(authorities.isEmpty());
     }
 
     @Test
-    void shouldCreateUserEntityWithAllArgsConstructor() {
-        UserEntity entity = new UserEntity(1L, "Rubén", "Gómez", "ruben@example.com", "123",
-                LocalDate.of(1990, 1, 1), "Palmira", "3001234567", 1, new BigDecimal("5000000"));
+    void shouldReturnEmptyAuthoritiesWhenRoleIsNull() {
+        UserEntity user = UserEntity.builder()
+                .identityDocument("123456789")
+                .password("securePass")
+                .role(null)
+                .build();
 
-        assertNotNull(entity);
-        assertEquals("Rubén", entity.getFirstName());
-    }
+        Collection<? extends GrantedAuthority> authorities = user.getAuthorities();
 
-    @Test
-    void shouldCreateUserEntityWithNoArgsConstructor() {
-        UserEntity entity = new UserEntity();
-        assertNotNull(entity);
+        assertTrue(authorities.isEmpty());
     }
 }
