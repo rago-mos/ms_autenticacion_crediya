@@ -1,7 +1,7 @@
 package co.com.crediya.usecase.createuser.validator;
 
-import co.com.crediya.usecase.createuser.exception.BusinessException;
-import co.com.crediya.usecase.createuser.exception.InvalidRequestException;
+import co.com.crediya.model.exception.BusinessException;
+import co.com.crediya.model.exception.InvalidRequestException;
 import org.junit.jupiter.api.Test;
 import reactor.test.StepVerifier;
 

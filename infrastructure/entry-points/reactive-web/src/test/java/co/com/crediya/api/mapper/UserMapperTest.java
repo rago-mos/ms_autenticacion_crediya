@@ -22,116 +22,69 @@ class UserMapperTest {
     }
 
     @Test
-    void shouldMapCreateUserRequestToUserCorrectly() {
-        CreateUserRequest dto = new CreateUserRequest(
-                "Rubén",
-                "Gómez",
-                "ruben@example.com",
-                "123456789",
+    void shouldMapCreateUserRequestToUserModelCorrectly() {
+        CreateUserRequest request = new CreateUserRequest(
+                "Pepe",
+                "Perez",
+                "pepe@gmail.com",
+                "262762",
+                "328472388273823",
                 LocalDate.of(1990, 1, 1),
-                "Palmira",
-                "3001234567",
-                "ADMIN",
-                new BigDecimal("5000000")
+                "Cr 5 N° 798",
+                "36127328237",
+                1,
+                new BigDecimal("87234783216")
         );
 
-        User user = mapper.toModel(dto);
+        User user = mapper.toModel(request);
 
-        assertEquals(dto.firstName(), user.getFirstName());
-        assertEquals(dto.lastName(), user.getLastName());
-        assertEquals(dto.email(), user.getEmail());
-        assertEquals(dto.identityDocument(), user.getIdentityDocument());
-        assertEquals(dto.birthDate(), user.getBirthDate());
-        assertEquals(dto.address(), user.getAddress());
-        assertEquals(dto.phoneNumber(), user.getPhoneNumber());
-        assertEquals(dto.baseSalary(), user.getBaseSalary());
+        assertEquals("Pepe", user.getFirstName());
+        assertEquals("Perez", user.getLastName());
+        assertEquals("pepe@gmail.com", user.getEmail());
+        assertEquals("328472388273823", user.getIdentityDocument());
+        assertEquals("262762", user.getPassword());
+        assertEquals(LocalDate.of(1990, 1, 1), user.getBirthDate());
+        assertEquals("Cr 5 N° 798", user.getAddress());
+        assertEquals("36127328237", user.getPhoneNumber());
+        assertEquals(new BigDecimal("87234783216"), user.getBaseSalary());
 
         assertNotNull(user.getRole());
-        assertEquals("ADMIN", user.getRole().getName());
+        assertEquals(1, user.getRole().getIdRol());
+        assertEquals("", user.getRole().getName());
         assertEquals("", user.getRole().getDescription());
     }
 
     @Test
-    void shouldReturnNullRoleWhenRoleNameIsNull() {
-        CreateUserRequest dto = new CreateUserRequest(
-                "Rubén",
-                "Gómez",
-                "ruben@example.com",
-                "123456789",
-                LocalDate.of(1990, 1, 1),
-                "Palmira",
-                "3001234567",
-                null,
-                new BigDecimal("5000000")
-        );
+    void shouldMapUserModelToCreateUserResponseCorrectly() {
+        Role role = Role.builder()
+                .idRol(1)
+                .name("CLIENTE")
+                .description("Cliente estándar")
+                .build();
 
-        User user = mapper.toModel(dto);
-
-        assertNull(user.getRole());
-    }
-
-    @Test
-    void shouldReturnNullRoleWhenRoleNameIsBlank() {
-        CreateUserRequest dto = new CreateUserRequest(
-                "Rubén",
-                "Gómez",
-                "ruben@example.com",
-                "123456789",
-                LocalDate.of(1990, 1, 1),
-                "Palmira",
-                "3001234567",
-                "   ",
-                new BigDecimal("5000000")
-        );
-
-        User user = mapper.toModel(dto);
-
-        assertNull(user.getRole());
-    }
-
-    @Test
-    void shouldMapUserToCreateUserResponseCorrectly() {
         User user = User.builder()
-                .firstName("Rubén")
-                .lastName("Gómez")
-                .email("ruben@example.com")
-                .identityDocument("123456789")
+                .firstName("Pepe")
+                .lastName("Perez")
+                .email("pepe@gmail.com")
+                .identityDocument("328472388273823")
+                .password("262762")
                 .birthDate(LocalDate.of(1990, 1, 1))
-                .address("Palmira")
-                .phoneNumber("3001234567")
-                .role(Role.builder().name("ADMIN").description("Admin role").build())
-                .baseSalary(new BigDecimal("5000000"))
+                .address("Cr 5 N° 798")
+                .phoneNumber("36127328237")
+                .role(role)
+                .baseSalary(new BigDecimal("87234783216"))
                 .build();
 
         CreateUserResponse response = mapper.toResponse(user);
 
-        assertEquals(user.getFirstName(), response.firstName());
-        assertEquals(user.getLastName(), response.lastName());
-        assertEquals(user.getEmail(), response.email());
-        assertEquals(user.getIdentityDocument(), response.identityDocument());
-        assertEquals(user.getBirthDate(), response.birthDate());
-        assertEquals(user.getAddress(), response.address());
-        assertEquals(user.getPhoneNumber(), response.phoneNumber());
-        assertEquals(user.getRole().getName(), response.rol());
-        assertEquals(user.getBaseSalary(), response.baseSalary());
-    }
-
-    @Test
-    void shouldReturnNullRolInResponseWhenUserRoleIsNull() {
-        User user = User.builder()
-                .firstName("Rubén")
-                .lastName("Gómez")
-                .email("ruben@example.com")
-                .identityDocument("123456789")
-                .birthDate(LocalDate.of(1990, 1, 1))
-                .address("Palmira")
-                .phoneNumber("3001234567")
-                .role(null)
-                .baseSalary(new BigDecimal("5000000"))
-                .build();
-
-        CreateUserResponse response = mapper.toResponse(user);
-
-        assertNull(response.rol());
+        assertEquals("Pepe", response.firstName());
+        assertEquals("Perez", response.lastName());
+        assertEquals("pepe@gmail.com", response.email());
+        assertEquals("328472388273823", response.identityDocument());
+        assertEquals(LocalDate.of(1990, 1, 1), response.birthDate());
+        assertEquals("Cr 5 N° 798", response.address());
+        assertEquals("36127328237", response.phoneNumber());
+        assertEquals("CLIENTE", response.rol());
+        assertEquals(new BigDecimal("87234783216"), response.baseSalary());
     }
 }

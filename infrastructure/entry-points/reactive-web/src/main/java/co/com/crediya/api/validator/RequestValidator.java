@@ -18,8 +18,8 @@ public final class RequestValidator {
         // Evita instanciación
     }
 
-    public static Mono<CreateUserRequest> validate(CreateUserRequest  request, Validator validator) {
-        Set<ConstraintViolation<CreateUserRequest>> violations = validator.validate(request);
+    public static <T> Mono<T> validate(T  request, Validator validator) {
+        Set<ConstraintViolation<T>> violations = validator.validate(request);
 
         if (violations.isEmpty()) {
             return Mono.just(request);

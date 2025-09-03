@@ -3,6 +3,8 @@ package co.com.crediya.api;
 import co.com.crediya.api.dto.CreateUserRequest;
 import co.com.crediya.api.dto.CreateUserResponse;
 import co.com.crediya.api.dto.ErrorResponseHandler;
+import co.com.crediya.api.dto.LoginRequest;
+import co.com.crediya.model.login.TokenDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -29,6 +31,7 @@ import static org.springframework.web.reactive.function.server.RouterFunctions.r
 public class RouterRest {
 
     private static final String CREATE_USER_URL = "/api/v1/usuarios";
+    private static final String LOGIN_URL = "/api/v1/login";
     private static final String FIND_USER_URL = "/api/v1/usuarios/{documentIdentity}";
 
     @Bean
@@ -106,10 +109,39 @@ public class RouterRest {
                                     )
                             }
                     )
+            ),
+            @RouterOperation(
+                    path = LOGIN_URL,
+                    method = RequestMethod.POST,
+                    beanClass = Handler.class,
+                    beanMethod = "listenPostLogin",
+                    operation = @Operation(
+                            operationId = "tokenCreate",
+                            summary = "Generate token",
+                            requestBody = @RequestBody(required = true,
+                                    content = @Content(mediaType = "application/json",
+                                            schema = @Schema(implementation = LoginRequest.class)
+                                    )
+                            ),
+                            responses = {
+                                    @ApiResponse(
+                                            responseCode = "201",
+                                            description = "token created successfully",
+                                            content = @Content(mediaType = "application/json",
+                                                    schema = @Schema(implementation = TokenDTO.class)
+                                            )
+                                    ),
+                                    @ApiResponse(
+                                            responseCode = "401",
+                                            description = "Bad credentials"
+                                    )
+                            }
+                    )
             )
     })
     public RouterFunction<ServerResponse> routerFunction(Handler handler) {
         return route(POST(CREATE_USER_URL), handler::listenPostCreateUser)
+                .andRoute(POST(LOGIN_URL), handler::listenPostLogin)
                 .andRoute(GET(FIND_USER_URL), handler::listenGetUserByDocument);
     }
 }

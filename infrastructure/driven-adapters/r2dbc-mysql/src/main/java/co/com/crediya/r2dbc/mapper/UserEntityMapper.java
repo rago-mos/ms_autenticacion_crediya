@@ -3,10 +3,15 @@ package co.com.crediya.r2dbc.mapper;
 import co.com.crediya.model.role.Role;
 import co.com.crediya.model.user.User;
 import co.com.crediya.r2dbc.entities.UserEntity;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class UserEntityMapper {
+
+    private final PasswordEncoder passwordEncoder;
 
     public UserEntity toEntity(User user) {
         return UserEntity.builder()
@@ -14,6 +19,7 @@ public class UserEntityMapper {
                 .lastName(user.getLastName())
                 .email(user.getEmail())
                 .identityDocument(user.getIdentityDocument())
+                .password(passwordEncoder.encode(user.getPassword()))
                 .birthDate(user.getBirthDate())
                 .address(user.getAddress())
                 .phoneNumber(user.getPhoneNumber())
@@ -28,6 +34,7 @@ public class UserEntityMapper {
                 .lastName(entity.getLastName())
                 .email(entity.getEmail())
                 .identityDocument(entity.getIdentityDocument())
+                .password(entity.getPassword())
                 .birthDate(entity.getBirthDate())
                 .address(entity.getAddress())
                 .phoneNumber(entity.getPhoneNumber())

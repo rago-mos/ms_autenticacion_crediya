@@ -27,10 +27,11 @@ class RequestValidatorTest {
                 "Gómez",
                 "ruben@example.com",
                 "123456789",
+                "123456789",
                 LocalDate.of(1990, 1, 1),
                 "Palmira",
                 "3001234567",
-                "ADMIN",
+                1,
                 new BigDecimal("5000000")
         );
 
@@ -46,10 +47,11 @@ class RequestValidatorTest {
                 "Gómez",
                 "correo-invalido",
                 "123456789",
+                "123456789",
                 LocalDate.of(1990, 1, 1),
                 "Palmira",
                 "3001234567",
-                "ADMIN",
+                1,
                 new BigDecimal("5000000")
         );
 
@@ -66,6 +68,7 @@ class RequestValidatorTest {
                 "Gómez",
                 null,
                 "123456789",
+                "123456789",
                 LocalDate.of(1990, 1, 1),
                 "Palmira",
                 "300ABC",
@@ -75,10 +78,10 @@ class RequestValidatorTest {
 
         StepVerifier.create(RequestValidator.validate(request, validator))
                 .expectErrorMatches(e -> e instanceof IllegalArgumentException &&
-                        e.getMessage().contains("email: The field is mandatory") &&
-                        e.getMessage().contains("phoneNumber: The field must contain only numerical digits") &&
-                        e.getMessage().contains("rol: The field is mandatory") &&
-                        e.getMessage().contains("baseSalary: The field is mandatory"))
+                        e.getMessage().contains("The field email is mandatory") &&
+                        e.getMessage().contains("The field phoneNumber must contain only numerical digits") &&
+                        e.getMessage().contains("The field rol is mandatory") &&
+                        e.getMessage().contains("The field baseSalary is mandatory"))
                 .verify();
     }
 

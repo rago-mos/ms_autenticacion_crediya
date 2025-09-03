@@ -1,8 +1,9 @@
 package co.com.crediya.api.exception;
 
 import co.com.crediya.api.dto.ErrorResponseHandler;
-import co.com.crediya.usecase.createuser.exception.BusinessException;
-import co.com.crediya.usecase.createuser.exception.InvalidRequestException;
+import co.com.crediya.model.exception.BadCredentialsException;
+import co.com.crediya.model.exception.BusinessException;
+import co.com.crediya.model.exception.InvalidRequestException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -29,10 +30,6 @@ import static co.com.crediya.api.Handler.log;
 @Component
 public class GlobalExceptionHandler implements ErrorWebExceptionHandler, Ordered {
 
-    private static final String INVALID_REQUEST_FORMAT = "Invalid request format: ";
-    private static final String BINDING_ERROR = "Binding error: ";
-    private static final String CONFLICT = "Conflict: ";
-    private static final String UNEXPECTED_ERROR = "Unexpected error";
     private final ObjectMapper objectMapper;
 
     public GlobalExceptionHandler() {
@@ -45,13 +42,12 @@ public class GlobalExceptionHandler implements ErrorWebExceptionHandler, Ordered
     public Mono<Void> handle(ServerWebExchange exchange, Throwable ex) {
         log.error("Handled exception: {}", ex.getClass().getSimpleName(), ex);
         HttpStatus status = resolveStatus(ex);
-        String message = resolveMessage(ex);
 
         ErrorResponseHandler errorBody = ErrorResponseHandler.builder()
                 .timestamp(LocalDateTime.now())
                 .status(status.value())
                 .error(ex.getClass().getSimpleName())
-                .message(message)
+                .message(ex.getMessage())
                 .build();
 
         byte[] bytes;
@@ -59,7 +55,7 @@ public class GlobalExceptionHandler implements ErrorWebExceptionHandler, Ordered
             bytes = objectMapper.writeValueAsBytes(errorBody);
         } catch (JsonProcessingException e) {
             bytes = ("{\"error\":\"Serialization error\"}").getBytes(StandardCharsets.UTF_8);
-            e.printStackTrace();
+            e.getMessage();
         }
 
         exchange.getResponse().setStatusCode(status);
@@ -78,18 +74,8 @@ public class GlobalExceptionHandler implements ErrorWebExceptionHandler, Ordered
         if (ex instanceof DecodingException) return HttpStatus.BAD_REQUEST;
         if (ex instanceof BusinessException) return HttpStatus.CONFLICT;
         if (ex instanceof InvalidRequestException) return HttpStatus.BAD_REQUEST;
+        if (ex instanceof BadCredentialsException) return HttpStatus.UNAUTHORIZED;
         return HttpStatus.INTERNAL_SERVER_ERROR;
-    }
-
-    private String resolveMessage(Throwable ex) {
-        if (ex instanceof WebExchangeBindException e) return BINDING_ERROR + e.getMessage();
-        if (ex instanceof ServerWebInputException e) return INVALID_REQUEST_FORMAT + e.getMessage();
-        if (ex instanceof ResponseStatusException e) return e.getReason();
-        if (ex instanceof InvalidFormatException e) return INVALID_REQUEST_FORMAT + e.getOriginalMessage();
-        if (ex instanceof DecodingException e) return INVALID_REQUEST_FORMAT + e.getMessage();
-        if (ex instanceof BusinessException e) return CONFLICT + e.getMessage();
-        if (ex instanceof InvalidRequestException e) return INVALID_REQUEST_FORMAT + e.getMessage();
-        return ex.getMessage() != null ? ex.getMessage() : UNEXPECTED_ERROR;
     }
 
     @Override

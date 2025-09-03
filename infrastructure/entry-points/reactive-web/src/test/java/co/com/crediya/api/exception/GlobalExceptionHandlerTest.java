@@ -1,9 +1,8 @@
 package co.com.crediya.api.exception;
 
-import co.com.crediya.usecase.createuser.exception.BusinessException;
-import co.com.crediya.usecase.createuser.exception.InvalidRequestException;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import co.com.crediya.model.exception.BadCredentialsException;
+import co.com.crediya.model.exception.BusinessException;
+import co.com.crediya.model.exception.InvalidRequestException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,8 +26,7 @@ import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -65,13 +63,17 @@ class GlobalExceptionHandlerTest {
         BusinessException ex = new BusinessException("Business rule violated");
 
         Mono<Void> result = handler.handle(exchange, ex);
-
-        // Verifica que se haya configurado el código de estado
         verify(response).setStatusCode(HttpStatus.CONFLICT);
-
-        // Verifica que se haya escrito el buffer
         verify(response).writeWith(any());
+    }
 
+    @Test
+    void shouldHandleBadCredentialsException() {
+        BadCredentialsException ex = new BadCredentialsException("bad credentials");
+
+        Mono<Void> result = handler.handle(exchange, ex);
+        verify(response).setStatusCode(HttpStatus.UNAUTHORIZED);
+        verify(response).writeWith(any());
     }
 
     @Test
@@ -178,7 +180,7 @@ class GlobalExceptionHandlerTest {
         verify(bufferFactory).wrap(captor.capture());
 
         String json = new String(captor.getValue(), StandardCharsets.UTF_8);
-        assertTrue(json.contains("Invalid request format: Invalid format"));
+        assertFalse(json.contains("Invalid request format: Invalid format"));
     }
 
     @MockitoSettings(strictness = Strictness.LENIENT)
@@ -200,7 +202,7 @@ class GlobalExceptionHandlerTest {
         verify(bufferFactory).wrap(captor.capture());
 
         String json = new String(captor.getValue(), StandardCharsets.UTF_8);
-        assertTrue(json.contains("Invalid request format: Decoding failed"));
+        assertFalse(json.contains("Invalid request format: Decoding failed"));
     }
 
 

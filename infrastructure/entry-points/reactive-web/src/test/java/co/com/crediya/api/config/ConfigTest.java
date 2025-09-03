@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
@@ -17,6 +18,7 @@ class ConfigTest {
     @Autowired
     private WebTestClient webTestClient;
 
+    @WithMockUser(username = "admin", authorities = {"ADMIN", "ASESOR"})
     @Test
     void corsConfigurationShouldAllowOrigins() {
         webTestClient.get()
