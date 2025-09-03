@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS usuario (
     apellido VARCHAR(100) NOT NULL,
     email VARCHAR(150) NOT NULL,
     documento_identidad VARCHAR(20) NOT NULL,
+    password VARCHAR(200) NOT NULL,
     fecha_nacimiento DATE,
     direccion VARCHAR(255),
     telefono VARCHAR(50),

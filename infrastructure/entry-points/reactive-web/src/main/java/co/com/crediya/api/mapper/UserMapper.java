@@ -15,10 +15,11 @@ public class UserMapper {
                 .lastName(dto.lastName())
                 .email(dto.email())
                 .identityDocument(dto.identityDocument())
+                .password(dto.password())
                 .birthDate(dto.birthDate())
                 .address(dto.address())
                 .phoneNumber(dto.phoneNumber())
-                .role(buildRole(dto.rol()))
+                .role(buildRole(dto.idRol()))
                 .baseSalary(dto.baseSalary())
                 .build();
     }
@@ -32,16 +33,17 @@ public class UserMapper {
                 .birthDate(user.getBirthDate())
                 .address(user.getAddress())
                 .phoneNumber(user.getPhoneNumber())
-                .rol(user.getRole() != null ? user.getRole().getName() : null)
+                .rol(user.getRole().getName())
                 .baseSalary(user.getBaseSalary())
                 .build();
     }
 
-    private Role buildRole(String roleName) {
-        if (roleName == null || roleName.isBlank()) return null;
+    private Role buildRole(Integer rol) {
+        if (rol == null) return null;
 
         return Role.builder()
-                .name(roleName)
+                .idRol(rol)
+                .name("")
                 .description("")
                 .build();
     }
