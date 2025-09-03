@@ -1,4 +1,4 @@
-package co.com.crediya.usecase.createuser.exception;
+package co.com.crediya.model.exception;
 
 
 public class BusinessException extends ApiException {

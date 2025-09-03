@@ -57,3 +57,8 @@ springdoc:
     display-request-duration: true
     doc-expansion: none
     filter: true
+
+# JWT
+jwt:
+  secret: ${JWT_SECRET}
+  expiration: ${JWT_EXPIRATION}

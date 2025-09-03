@@ -1,10 +1,12 @@
 package co.com.crediya.usecase.createuser.validator;
 
-import co.com.crediya.usecase.createuser.exception.BusinessException;
-import co.com.crediya.usecase.createuser.exception.InvalidRequestException;
+import co.com.crediya.model.exception.BusinessException;
+import co.com.crediya.model.exception.InvalidRequestException;
 import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
+
+import static co.com.crediya.model.utils.Constant.*;
 
 public class UserValidator {
 
@@ -17,14 +19,14 @@ public class UserValidator {
 
     public static Mono<Void> validateFirtsName(String name) {
         if (name == null || name.isBlank()) {
-            return Mono.error(new InvalidRequestException("firtsName is null or blank"));
+            return Mono.error(new InvalidRequestException(ERROR_REQUEST_FIRTSNAME));
         }
         return Mono.empty();
     }
 
     public static Mono<Void> validateLastName(String lastName) {
         if (lastName == null || lastName.isBlank()) {
-            return Mono.error(new InvalidRequestException("Last name is null or blank"));
+            return Mono.error(new InvalidRequestException(ERROR_REQUEST_LASTNAME));
         }
         return Mono.empty();
     }
@@ -34,8 +36,7 @@ public class UserValidator {
                 salary.compareTo(MIN_SALARY) < 0 ||
                 salary.compareTo(MAX_SALARY) > 0) {
             return Mono.error(new BusinessException(
-                    String.format("The salary is not valid; it must be between %s and %s",
-                            MIN_SALARY, MAX_SALARY)));
+                    String.format(ERROR_BUSINESS_SALARY, MIN_SALARY, MAX_SALARY)));
         }
         return Mono.empty();
     }
