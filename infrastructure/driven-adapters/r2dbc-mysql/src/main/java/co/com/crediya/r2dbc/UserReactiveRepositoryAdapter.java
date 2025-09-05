@@ -1,5 +1,6 @@
 package co.com.crediya.r2dbc;
 
+import co.com.crediya.model.application.UserApplicationView;
 import co.com.crediya.model.exception.BadCredentialsException;
 import co.com.crediya.model.login.LoginDTO;
 import co.com.crediya.model.login.TokenDTO;
@@ -13,7 +14,10 @@ import org.reactivecommons.utils.ObjectMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.reactive.TransactionalOperator;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 import static co.com.crediya.model.utils.Constant.ERROR_BAD_CREDENTIALS;
 
@@ -66,5 +70,10 @@ public class UserReactiveRepositoryAdapter extends ReactiveAdapterOperations<
                 .filter(userEntity -> passwordEncoder.matches(dto.password(), userEntity.getPassword()))
                 .map(userEntity ->  new TokenDTO(jwtProvider.generateToken(userEntity)))
                 .switchIfEmpty(Mono.error(new BadCredentialsException(ERROR_BAD_CREDENTIALS)));
+    }
+
+    @Override
+    public Flux<UserApplicationView> findUsersByIdentityDocument(List<String> document) {
+        return repository.finUsersApplicationdByDocumentIn(document);
     }
 }

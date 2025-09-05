@@ -1,12 +1,16 @@
 package co.com.crediya.usecase.createuser;
 
+import co.com.crediya.model.application.UserApplicationView;
 import co.com.crediya.model.role.gateways.RoleRepository;
 import co.com.crediya.model.user.User;
 import co.com.crediya.model.user.gateways.UserRepository;
 import co.com.crediya.model.exception.BusinessException;
 import co.com.crediya.usecase.createuser.validator.UserValidator;
 import lombok.RequiredArgsConstructor;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 import static co.com.crediya.model.utils.Constant.ERROR_BUSINESS_DOCUMENT;
 import static co.com.crediya.model.utils.Constant.ERROR_BUSINESS_EMAIL;
@@ -28,6 +32,12 @@ public class CreateUserUseCase implements ICreateUserUseCase {
     public Mono<Boolean> existsUserByDocument(String document) {
         return userRepository.existsByIdentityDocument(document);
     }
+
+    @Override
+    public Flux<UserApplicationView> findUsersByIdentityDocument(List<String> document) {
+        return userRepository.findUsersByIdentityDocument(document);
+    }
+
 
     private Mono<User> validateData(User user) {
         return UserValidator.validateFirtsName(user.getFirstName())

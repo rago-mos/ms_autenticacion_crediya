@@ -2,6 +2,8 @@ package co.com.crediya.api.mapper;
 
 import co.com.crediya.api.dto.CreateUserRequest;
 import co.com.crediya.api.dto.CreateUserResponse;
+import co.com.crediya.model.application.UserApplicationDTO;
+import co.com.crediya.model.application.UserApplicationView;
 import co.com.crediya.model.role.Role;
 import co.com.crediya.model.user.User;
 import org.springframework.stereotype.Component;
@@ -35,6 +37,16 @@ public class UserMapper {
                 .phoneNumber(user.getPhoneNumber())
                 .rol(user.getRole().getName())
                 .baseSalary(user.getBaseSalary())
+                .build();
+    }
+
+    public UserApplicationDTO toDTO(UserApplicationView view) {
+        return UserApplicationDTO.builder()
+                .firstName(view.getFirstName())
+                .lastName(view.getLastName())
+                .email(view.getEmail())
+                .identityDocument(view.getIdentityDocument())
+                .baseSalary(view.getBaseSalary())
                 .build();
     }
 

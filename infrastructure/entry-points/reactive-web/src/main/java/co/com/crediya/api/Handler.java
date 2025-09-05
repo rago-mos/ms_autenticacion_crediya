@@ -2,6 +2,7 @@ package co.com.crediya.api;
 
 import co.com.crediya.api.dto.CreateUserRequest;
 import co.com.crediya.api.dto.LoginRequest;
+import co.com.crediya.api.dto.UserApplicationsRequest;
 import co.com.crediya.api.mapper.LoginMapper;
 import co.com.crediya.api.mapper.UserMapper;
 import co.com.crediya.api.validator.RequestValidator;
@@ -11,6 +12,7 @@ import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
@@ -63,6 +65,21 @@ public class Handler {
                 return ServerResponse.status(200)
                         .bodyValue(Map.of("exists", exists));
             });
+    }
+
+    @PreAuthorize("hasAuthority('ASESOR')")
+    public Mono<ServerResponse> listenGetUserApplications(ServerRequest request) {
+
+        return request.bodyToMono(UserApplicationsRequest.class)
+                .doOnNext(req -> log.info("documents: {}", req.documents()))
+                .flatMapMany(req ->
+                        createUserUseCase.findUsersByIdentityDocument(req.documents()))
+                .map(userMapper::toDTO)
+                .collectList()
+                .doOnNext(res -> log.info(LOG_LIST_USERS, res.size()))
+                .flatMap(res -> ServerResponse.ok()
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .bodyValue(res));
     }
 
     public Mono<ServerResponse> listenPostLogin(ServerRequest request) {

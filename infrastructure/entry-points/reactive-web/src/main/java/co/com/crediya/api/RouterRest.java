@@ -33,6 +33,7 @@ public class RouterRest {
     private static final String CREATE_USER_URL = "/api/v1/usuarios";
     private static final String LOGIN_URL = "/api/v1/login";
     private static final String FIND_USER_URL = "/api/v1/usuarios/{documentIdentity}";
+    private static final String FIND_USERS_APPLICATIONS_URL = "/api/v1/usuarioSolicitudes";
 
     @Bean
     @RouterOperations({
@@ -142,6 +143,7 @@ public class RouterRest {
     public RouterFunction<ServerResponse> routerFunction(Handler handler) {
         return route(POST(CREATE_USER_URL), handler::listenPostCreateUser)
                 .andRoute(POST(LOGIN_URL), handler::listenPostLogin)
-                .andRoute(GET(FIND_USER_URL), handler::listenGetUserByDocument);
+                .andRoute(GET(FIND_USER_URL), handler::listenGetUserByDocument)
+                .andRoute(GET(FIND_USERS_APPLICATIONS_URL), handler::listenGetUserApplications);
     }
 }

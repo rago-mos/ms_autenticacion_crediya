@@ -17,6 +17,7 @@ public class Constant {
     public static final String ERROR_ROLE = "role not found";
     public static final String ERROR_BAD_TOKEN = "bad token";
     public static final String ERROR_ACCES_DENIED = "Access denied. You do not have the necessary permissions for this resource";
+    public static final String LOG_LIST_USERS = "Users list: {}";
 
 
     private Constant() {
