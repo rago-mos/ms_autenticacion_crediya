@@ -74,6 +74,7 @@ public class UserReactiveRepositoryAdapter extends ReactiveAdapterOperations<
 
     @Override
     public Flux<UserApplicationView> findUsersByIdentityDocument(List<String> document) {
-        return repository.finUsersApplicationdByDocumentIn(document);
+        return repository.finUsersApplicationdByDocumentIn(document)
+                .map(userEntityMapper::toView);
     }
 }

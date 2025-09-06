@@ -2,6 +2,8 @@ package co.com.crediya.api.mapper;
 
 import co.com.crediya.api.dto.CreateUserRequest;
 import co.com.crediya.api.dto.CreateUserResponse;
+import co.com.crediya.api.dto.UserApplicationResponse;
+import co.com.crediya.model.application.UserApplicationView;
 import co.com.crediya.model.role.Role;
 import co.com.crediya.model.user.User;
 import org.junit.jupiter.api.BeforeEach;
@@ -86,5 +88,28 @@ class UserMapperTest {
         assertEquals("36127328237", response.phoneNumber());
         assertEquals("CLIENTE", response.rol());
         assertEquals(new BigDecimal("87234783216"), response.baseSalary());
+    }
+
+    @Test
+    void shouldMapUserApplicationViewToResponseCorrectly() {
+        // Arrange
+        UserApplicationView view = UserApplicationView.builder()
+                .firstName("Rubén")
+                .lastName("Tester")
+                .email("ruben@example.com")
+                .identityDocument("123456789")
+                .baseSalary(new BigDecimal("3000000"))
+                .build();
+
+        // Act
+        UserApplicationResponse response = mapper.toDTO(view);
+
+        // Assert
+        assertNotNull(response);
+        assertEquals("Rubén", response.firstName());
+        assertEquals("Tester", response.lastName());
+        assertEquals("ruben@example.com", response.email());
+        assertEquals("123456789", response.identityDocument());
+        assertEquals(new BigDecimal("3000000"), response.baseSalary());
     }
 }

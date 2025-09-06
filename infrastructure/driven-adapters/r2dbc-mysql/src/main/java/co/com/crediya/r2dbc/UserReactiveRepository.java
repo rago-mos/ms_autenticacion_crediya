@@ -1,6 +1,7 @@
 package co.com.crediya.r2dbc;
 
 import co.com.crediya.model.application.UserApplicationView;
+import co.com.crediya.r2dbc.entities.UserApplicationViewEntity;
 import co.com.crediya.r2dbc.entities.UserEntity;
 import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.repository.query.ReactiveQueryByExampleExecutor;
@@ -21,5 +22,5 @@ public interface UserReactiveRepository extends ReactiveCrudRepository<UserEntit
             "FROM usuario " +
             "WHERE documento_identidad " +
             "IN (:document)")
-    Flux<UserApplicationView> finUsersApplicationdByDocumentIn(List<String> document);
+    Flux<UserApplicationViewEntity> finUsersApplicationdByDocumentIn(List<String> document);
 }

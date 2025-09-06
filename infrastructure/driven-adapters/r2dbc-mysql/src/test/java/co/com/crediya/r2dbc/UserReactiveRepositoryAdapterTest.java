@@ -1,9 +1,11 @@
 package co.com.crediya.r2dbc;
 
+import co.com.crediya.model.application.UserApplicationView;
 import co.com.crediya.model.exception.BadCredentialsException;
 import co.com.crediya.model.login.LoginDTO;
 import co.com.crediya.model.role.Role;
 import co.com.crediya.model.user.User;
+import co.com.crediya.r2dbc.entities.UserApplicationViewEntity;
 import co.com.crediya.r2dbc.entities.UserEntity;
 import co.com.crediya.r2dbc.mapper.UserEntityMapper;
 import co.com.crediya.security.jwt.provider.JwtProvider;
@@ -15,10 +17,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.reactivecommons.utils.ObjectMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.reactive.TransactionalOperator;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 import static org.mockito.Mockito.*;
 
@@ -144,5 +148,33 @@ class UserReactiveRepositoryAdapterTest {
                 .expectErrorMatches(e -> e instanceof BadCredentialsException &&
                         e.getMessage().equals("bad credentials"))
                 .verify();
+    }
+
+    @Test
+    void shouldReturnMappedUserApplicationViews() {
+
+        List<String> documents = List.of("123456789", "987654321");
+
+        UserApplicationViewEntity entity1 = UserApplicationViewEntity.builder()
+                .firstName("Rubén")
+                .lastName("Tester")
+                .email("ruben@example.com")
+                .identityDocument("123456789")
+                .baseSalary(new BigDecimal("3000000"))
+                .build();
+
+        UserApplicationViewEntity entity2 = entity1.toBuilder()
+                .identityDocument("987654321")
+                .email("ana@example.com")
+                .firstName("Ana")
+                .build();
+
+        when(repository.finUsersApplicationdByDocumentIn(documents))
+                .thenReturn(Flux.just(entity1, entity2));
+
+        StepVerifier.create(adapter.findUsersByIdentityDocument(documents))
+                .expectNextMatches(view -> view.getIdentityDocument().equals("123456789"))
+                .expectNextMatches(view -> view.getIdentityDocument().equals("987654321"))
+                .verifyComplete();
     }
 }

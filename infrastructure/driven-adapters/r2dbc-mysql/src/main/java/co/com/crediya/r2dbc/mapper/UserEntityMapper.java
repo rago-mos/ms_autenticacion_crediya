@@ -1,7 +1,9 @@
 package co.com.crediya.r2dbc.mapper;
 
+import co.com.crediya.model.application.UserApplicationView;
 import co.com.crediya.model.role.Role;
 import co.com.crediya.model.user.User;
+import co.com.crediya.r2dbc.entities.UserApplicationViewEntity;
 import co.com.crediya.r2dbc.entities.UserEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -39,6 +41,16 @@ public class UserEntityMapper {
                 .address(entity.getAddress())
                 .phoneNumber(entity.getPhoneNumber())
                 .role(buildRole(entity.getRole()))
+                .baseSalary(entity.getBaseSalary())
+                .build();
+    }
+
+    public UserApplicationView toView(UserApplicationViewEntity  entity) {
+        return UserApplicationView.builder()
+                .firstName(entity.getFirstName())
+                .lastName(entity.getLastName())
+                .email(entity.getEmail())
+                .identityDocument(entity.getIdentityDocument())
                 .baseSalary(entity.getBaseSalary())
                 .build();
     }

@@ -1,11 +1,11 @@
-package co.com.crediya.model.application;
+package co.com.crediya.api.dto;
 
 import lombok.Builder;
 
 import java.math.BigDecimal;
 
 @Builder
-public record UserApplicationDTO(
+public record UserApplicationResponse(
 
         String firstName,
         String lastName,
