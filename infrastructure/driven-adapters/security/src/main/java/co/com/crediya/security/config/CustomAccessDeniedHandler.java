@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.AccessDeniedException;
@@ -14,7 +15,9 @@ import reactor.core.publisher.Mono;
 import java.time.LocalDateTime;
 
 import static co.com.crediya.model.utils.Constant.ERROR_ACCES_DENIED;
+import static co.com.crediya.model.utils.Constant.ERROR_ACCES_DENIED_ARGUMENT;
 
+@Slf4j
 @Component
 public class CustomAccessDeniedHandler implements ServerAccessDeniedHandler {
 
@@ -31,6 +34,8 @@ public class CustomAccessDeniedHandler implements ServerAccessDeniedHandler {
         return Mono.defer(() -> {
             exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
             exchange.getResponse().getHeaders().setContentType(MediaType.APPLICATION_JSON);
+
+            log.warn(ERROR_ACCES_DENIED_ARGUMENT, exchange.getRequest().getURI());
 
             AccesDeniedResponse response = AccesDeniedResponse.builder()
                     .timestamp(LocalDateTime.now())

@@ -1,9 +1,6 @@
 package co.com.crediya.api;
 
-import co.com.crediya.api.dto.CreateUserRequest;
-import co.com.crediya.api.dto.CreateUserResponse;
-import co.com.crediya.api.dto.ErrorResponseHandler;
-import co.com.crediya.api.dto.LoginRequest;
+import co.com.crediya.api.dto.*;
 import co.com.crediya.model.login.TokenDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -59,6 +56,11 @@ public class RouterRest {
                                     content = @Content(mediaType = "application/json",
                                             schema = @Schema(implementation = ErrorResponseHandler.class)
                                     )
+                            ), @ApiResponse(responseCode = "403",
+                                    description = "Access denied",
+                                    content = @Content(mediaType = "application/json",
+                                            schema = @Schema(implementation = ErrorResponseHandler.class)
+                                    )
                             ), @ApiResponse(responseCode = "409",
                                     description = "Conflict: Email already exists or salary is invalid",
                                     content = @Content(mediaType = "application/json",
@@ -107,7 +109,13 @@ public class RouterRest {
                                     @ApiResponse(
                                             responseCode = "400",
                                             description = "Parameter 'document' invalid or blank"
+                                    ),
+                                    @ApiResponse(responseCode = "403",
+                                    description = "Access denied",
+                                    content = @Content(mediaType = "application/json",
+                                            schema = @Schema(implementation = ErrorResponseHandler.class)
                                     )
+                            ),
                             }
                     )
             ),
@@ -138,12 +146,47 @@ public class RouterRest {
                                     )
                             }
                     )
+            ),
+            @RouterOperation(method = POST,
+                    path = FIND_USERS_APPLICATIONS_URL,
+                    beanClass = Handler.class,
+                    beanMethod = "listenPostUserApplications",
+                    operation = @Operation(operationId = "getUserApplications",
+                            summary = "User query by document",
+                            description = "The system receives the user's document and returns an object with basic user information",
+                            requestBody = @RequestBody(required = true,
+                                    content = @Content(mediaType = "application/json",
+                                            schema = @Schema(implementation = UserApplicationsRequest.class)
+                                    )
+                            ),
+                            responses = {@ApiResponse(responseCode = "200",
+                                    description = "Data returned successfully",
+                                    content = @Content(mediaType = "application/json",
+                                            schema = @Schema(implementation = UserApplicationResponse.class)
+                                    )
+                            ), @ApiResponse(responseCode = "400",
+                                    description = "Invalid request format",
+                                    content = @Content(mediaType = "application/json",
+                                            schema = @Schema(implementation = ErrorResponseHandler.class)
+                                    )
+                            ), @ApiResponse(responseCode = "403",
+                                    description = "Access denied",
+                                    content = @Content(mediaType = "application/json",
+                                            schema = @Schema(implementation = ErrorResponseHandler.class)
+                                    )
+                            ), @ApiResponse(responseCode = "500",
+                                    description = "Internal server error",
+                                    content = @Content(mediaType = "application/json",
+                                            schema = @Schema(implementation = ErrorResponseHandler.class)
+                                    )
+                            )}
+                    )
             )
     })
     public RouterFunction<ServerResponse> routerFunction(Handler handler) {
         return route(POST(CREATE_USER_URL), handler::listenPostCreateUser)
                 .andRoute(POST(LOGIN_URL), handler::listenPostLogin)
                 .andRoute(GET(FIND_USER_URL), handler::listenGetUserByDocument)
-                .andRoute(GET(FIND_USERS_APPLICATIONS_URL), handler::listenGetUserApplications);
+                .andRoute(POST(FIND_USERS_APPLICATIONS_URL), handler::listenPostUserApplications);
     }
 }

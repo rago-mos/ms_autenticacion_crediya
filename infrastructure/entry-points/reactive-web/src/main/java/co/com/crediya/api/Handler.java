@@ -68,7 +68,7 @@ public class Handler {
     }
 
     @PreAuthorize("hasAuthority('ASESOR')")
-    public Mono<ServerResponse> listenGetUserApplications(ServerRequest request) {
+    public Mono<ServerResponse> listenPostUserApplications(ServerRequest request) {
 
         return request.bodyToMono(UserApplicationsRequest.class)
                 .doOnNext(req -> log.info("documents: {}", req.documents()))
