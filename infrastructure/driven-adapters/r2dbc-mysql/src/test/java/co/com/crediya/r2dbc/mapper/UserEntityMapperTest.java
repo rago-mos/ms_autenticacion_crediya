@@ -1,7 +1,9 @@
 package co.com.crediya.r2dbc.mapper;
 
+import co.com.crediya.model.application.UserApplicationView;
 import co.com.crediya.model.role.Role;
 import co.com.crediya.model.user.User;
+import co.com.crediya.r2dbc.entities.UserApplicationViewEntity;
 import co.com.crediya.r2dbc.entities.UserEntity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -103,5 +105,26 @@ class UserEntityMapperTest {
         User user = mapper.toDomain(entity);
 
         assertNull(user.getRole());
+    }
+
+    @Test
+    void shouldMapEntityToViewCorrectly() {
+
+        UserApplicationViewEntity entity = UserApplicationViewEntity.builder()
+                .firstName("Rubén")
+                .lastName("Tester")
+                .email("ruben@example.com")
+                .identityDocument("123456789")
+                .baseSalary(new BigDecimal("3000000"))
+                .build();
+
+        UserApplicationView view = mapper.toView(entity);
+
+        assertNotNull(view);
+        assertEquals("Rubén", view.getFirstName());
+        assertEquals("Tester", view.getLastName());
+        assertEquals("ruben@example.com", view.getEmail());
+        assertEquals("123456789", view.getIdentityDocument());
+        assertEquals(new BigDecimal("3000000"), view.getBaseSalary());
     }
 }

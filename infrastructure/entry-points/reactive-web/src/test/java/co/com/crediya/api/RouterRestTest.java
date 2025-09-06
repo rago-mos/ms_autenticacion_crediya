@@ -3,17 +3,16 @@ package co.com.crediya.api;
 import co.com.crediya.api.dto.CreateUserRequest;
 import co.com.crediya.api.dto.CreateUserResponse;
 import co.com.crediya.api.dto.LoginRequest;
+import co.com.crediya.api.dto.UserApplicationsRequest;
 import co.com.crediya.api.exception.GlobalExceptionHandler;
 import co.com.crediya.api.mapper.LoginMapper;
 import co.com.crediya.api.mapper.UserMapper;
+import co.com.crediya.model.application.UserApplicationView;
 import co.com.crediya.model.login.LoginDTO;
 import co.com.crediya.model.login.TokenDTO;
 import co.com.crediya.model.role.Role;
 import co.com.crediya.model.user.User;
-import co.com.crediya.security.config.SecurityConfig;
-import co.com.crediya.security.jwt.filter.JwtFilter;
-import co.com.crediya.security.jwt.manager.JwtAuthenticationManager;
-import co.com.crediya.security.repository.SecurityContextRepository;
+import co.com.crediya.security.jwt.provider.JwtProvider;
 import co.com.crediya.usecase.createuser.ICreateUserUseCase;
 import co.com.crediya.usecase.createuser.ILoginUseCase;
 import jakarta.validation.Validator;
@@ -21,16 +20,22 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Set;
+
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static reactor.blockhound.shaded.net.bytebuddy.matcher.ElementMatchers.any;
 
@@ -57,6 +62,8 @@ class RouterRestTest {
     @MockitoBean
     private LoginMapper loginMapper;
 
+    @MockitoBean
+    JwtProvider jwtProvider;
 
     @WithMockUser(username = "admin", authorities = {"ADMIN", "ASESOR"})
     @Test
@@ -123,6 +130,43 @@ class RouterRestTest {
                 .exchange()
                 .expectStatus().isForbidden();
     }
+
+    @WithMockUser(username = "admin", authorities = {"ADMIN", "ASESOR"})
+    @Test
+    void shouldReturnUserApplicationsSuccessfully() {
+
+        String token = "Bearer jkdsajs";
+        List<String> documents = List.of("123456789", "987654321");
+
+        UserApplicationView view1 = mock(UserApplicationView.class);
+        when(view1.getFirstName()).thenReturn("Rubén");
+        when(view1.getLastName()).thenReturn("Tester");
+        when(view1.getEmail()).thenReturn("ruben@example.com");
+        when(view1.getIdentityDocument()).thenReturn("123456789");
+        when(view1.getBaseSalary()).thenReturn(new BigDecimal("3000000"));
+
+        UserApplicationView view2 = mock(UserApplicationView.class);
+        when(view2.getFirstName()).thenReturn("Rubén");
+        when(view2.getLastName()).thenReturn("Tester");
+        when(view2.getEmail()).thenReturn("tester2@example.com");
+        when(view2.getIdentityDocument()).thenReturn("987654321");
+        when(view2.getBaseSalary()).thenReturn(new BigDecimal("3000000"));
+
+        when(jwtProvider.getSubject(anyString())).thenReturn("123456789");
+        when(userUseCase.findUsersByIdentityDocument(documents))
+                .thenReturn(Flux.just(view1, view2));
+
+        UserApplicationsRequest request = new UserApplicationsRequest(documents);
+
+        webTestClient.post()
+                .uri("/api/v1/usuarioSolicitudes")
+                .header(HttpHeaders.AUTHORIZATION, token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(request)
+                .exchange()
+                .expectStatus().isForbidden();
+    }
+
 
     // Mocks reutilizables
     private User userMock() {

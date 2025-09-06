@@ -3,8 +3,10 @@ package co.com.crediya.api;
 
 import co.com.crediya.api.dto.CreateUserRequest;
 import co.com.crediya.api.dto.LoginRequest;
+import co.com.crediya.api.dto.UserApplicationsRequest;
 import co.com.crediya.api.mapper.LoginMapper;
 import co.com.crediya.api.mapper.UserMapper;
+import co.com.crediya.model.application.UserApplicationView;
 import co.com.crediya.model.login.LoginDTO;
 import co.com.crediya.model.login.TokenDTO;
 import co.com.crediya.model.user.User;
@@ -13,15 +15,24 @@ import co.com.crediya.usecase.createuser.ILoginUseCase;
 import jakarta.validation.Validator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.codec.HttpMessageWriter;
+import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
+import org.springframework.mock.web.server.MockServerWebExchange;
+import org.springframework.web.reactive.function.server.HandlerStrategies;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
+import org.springframework.web.reactive.result.view.ViewResolver;
 import org.springframework.web.server.ResponseStatusException;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Set;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
@@ -110,5 +121,72 @@ class HandlerTest {
         StepVerifier.create(response)
                 .expectNextMatches(res -> res.statusCode().value() == 201)
                 .verifyComplete();
+    }
+
+    @Test
+    void shouldReturnUserApplicationsFromHandler() {
+        // Arrange
+        List<String> documents = List.of("123456789", "987654321");
+        UserApplicationsRequest requestBody = new UserApplicationsRequest(documents);
+
+        ServerRequest serverRequest = mock(ServerRequest.class);
+        when(serverRequest.bodyToMono(UserApplicationsRequest.class))
+                .thenReturn(Mono.just(requestBody));
+
+        UserApplicationView view1 = UserApplicationView.builder()
+                .firstName("Rubén")
+                .lastName("Tester")
+                .email("ruben@example.com")
+                .identityDocument("123456789")
+                .baseSalary(new BigDecimal("3000000"))
+                .build();
+
+        UserApplicationView view2 = view1.toBuilder()
+                .identityDocument("987654321")
+                .email("ana@example.com")
+                .firstName("Ana")
+                .build();
+
+        when(createUserUseCase.findUsersByIdentityDocument(documents))
+                .thenReturn(Flux.just(view1, view2));
+
+        // Act
+        Mono<ServerResponse> responseMono = handler.listenPostUserApplications(serverRequest);
+
+        // Assert
+        StepVerifier.create(responseMono)
+                .assertNext(response -> {
+                    assertEquals(HttpStatus.OK, response.statusCode());
+
+                    // Simular intercambio para extraer el body
+                    MockServerWebExchange exchange = MockServerWebExchange.from(
+                            MockServerHttpRequest.post("/api/v1/usuarioSolicitudes").build());
+
+                    response.writeTo(exchange, new DefaultContext()).block();
+
+                    String responseBody = exchange.getResponse()
+                            .getBodyAsString()
+                            .block();
+
+                    assertNotNull(responseBody);
+                    assertTrue(responseBody.contains("Rubén"));
+                    assertTrue(responseBody.contains("Ana"));
+                    assertTrue(responseBody.contains("123456789"));
+                    assertTrue(responseBody.contains("987654321"));
+                })
+                .verifyComplete();
+    }
+}
+
+
+class DefaultContext implements ServerResponse.Context {
+    @Override
+    public List<HttpMessageWriter<?>> messageWriters() {
+        return HandlerStrategies.withDefaults().messageWriters();
+    }
+
+    @Override
+    public List<ViewResolver> viewResolvers() {
+        return HandlerStrategies.withDefaults().viewResolvers();
     }
 }

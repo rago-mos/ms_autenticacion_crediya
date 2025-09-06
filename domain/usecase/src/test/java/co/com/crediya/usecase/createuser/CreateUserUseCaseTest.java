@@ -1,5 +1,6 @@
 package co.com.crediya.usecase.createuser;
 
+import co.com.crediya.model.application.UserApplicationView;
 import co.com.crediya.model.role.Role;
 import co.com.crediya.model.role.gateways.RoleRepository;
 import co.com.crediya.model.user.User;
@@ -11,11 +12,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -146,5 +149,36 @@ class CreateUserUseCaseTest {
                 .verifyComplete();
 
         verify(userRepository).existsByIdentityDocument(document);
+    }
+
+    @Test
+    void shouldReturnUserApplicationViewsFromRepository() {
+        // Arrange
+        List<String> documents = List.of("123456789", "987654321");
+
+        UserApplicationView view1 = UserApplicationView.builder()
+                .firstName("Rubén")
+                .lastName("Tester")
+                .email("ruben@example.com")
+                .identityDocument("123456789")
+                .baseSalary(new BigDecimal("3000000"))
+                .build();
+
+        UserApplicationView view2 = view1.toBuilder()
+                .identityDocument("987654321")
+                .email("ana@example.com")
+                .firstName("Ana")
+                .build();
+
+        when(userRepository.findUsersByIdentityDocument(documents))
+                .thenReturn(Flux.just(view1, view2));
+
+        // Act & Assert
+        StepVerifier.create(useCase.findUsersByIdentityDocument(documents))
+                .expectNext(view1)
+                .expectNext(view2)
+                .verifyComplete();
+
+        verify(userRepository).findUsersByIdentityDocument(documents);
     }
 }
