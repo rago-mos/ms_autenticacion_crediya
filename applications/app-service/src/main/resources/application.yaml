@@ -1,5 +1,5 @@
 server:
-  port: 8001
+  port: ${SERVER_PORT}
 spring:
   application:
     name: "ms_autenticacion_crediya"
@@ -24,11 +24,11 @@ spring:
       db: "${adapters.r2dbc.database}"
 adapters:
   r2dbc:
-    host: "localhost"
-    port: 3306
-    database: "ms_autenticacion"
-    username: "root"
-    password: "tarah723"
+    host: ${MYSQL_HOST:localhost}
+    port: ${MYSQL_PORT}
+    database: ${MYSQL_DATABASE}
+    username: ${MYSQL_USER}
+    password: ${MYSQL_ROOT_PASSWORD}
 management:
   endpoints:
     web:
@@ -39,7 +39,7 @@ management:
       probes:
         enabled: true
 cors:
-  allowed-origins: "http://localhost:4200,http://localhost:8002"
+  allowed-origins: "http://localhost:4200,http://localhost:8002,http://ms_solicitudes:8002"
 logging:
   level:
     root: INFO
