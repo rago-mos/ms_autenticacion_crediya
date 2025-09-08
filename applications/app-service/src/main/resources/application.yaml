@@ -25,7 +25,7 @@ spring:
 adapters:
   r2dbc:
     host: ${MYSQL_HOST:localhost}
-    port: ${MYSQL_PORT}
+    port: ${MYSQL_PORT:3306}
     database: ${MYSQL_DATABASE}
     username: ${MYSQL_USER}
     password: ${MYSQL_ROOT_PASSWORD}
