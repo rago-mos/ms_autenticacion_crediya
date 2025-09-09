@@ -1,0 +1,41 @@
+# Archivos de configuración y entornos locales
+*.iml
+*.log
+*.env
+.env.*
+
+# Directorios de build y salida
+**/build/
+**/out/
+.gradle/
+.idea/
+.vscode/
+
+# Control de versiones y backups
+.git/
+.gitignore
+*.swp
+*.bak
+*.tmp
+
+# Archivos de sistema y editor
+.DS_Store
+Thumbs.db
+
+# Dependencias externas (si usas Node o similares)
+node_modules/
+bower_components/
+
+# Archivos de test o datos temporales
+test-output/
+coverage/
+*.test.js
+*.spec.js
+*.csv
+*.json
+*.xlsx
+
+# Archivos de documentación pesada
+docs/
+*.pdf
+*.pptx
