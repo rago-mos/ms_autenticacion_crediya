@@ -181,7 +181,7 @@ public class Handler {
                     )
             )}
     )
-    @PreAuthorize("hasAuthority('ASESOR')")
+    @PreAuthorize("hasAnyAuthority('ASESOR', 'CLIENTE')")
     public Mono<ServerResponse> listenPostUserApplications(ServerRequest request) {
 
         return request.bodyToMono(UserApplicationsRequest.class)
