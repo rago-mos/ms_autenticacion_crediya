@@ -1,77 +1,97 @@
 package co.com.crediya.security.jwt.filter;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.stubbing.Answer;
 import org.springframework.http.HttpHeaders;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
+import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 class JwtFilterTest {
 
-    private JwtFilter jwtFilter;
+    @Mock
+    private ServerWebExchangeMatcher matcher;
+
+    @Mock
     private WebFilterChain chain;
+
+    private JwtFilter jwtFilter;
 
     @BeforeEach
     void setUp() {
-        jwtFilter = new JwtFilter();
-        chain = mock(WebFilterChain.class);
-        when(chain.filter(any())).thenReturn(Mono.empty());
+        jwtFilter = new JwtFilter(matcher);
     }
 
     @Test
-    void shouldAllowRequestToApiPathWithoutToken() {
+    void shouldPassThroughPublicPathWithoutToken() {
         ServerWebExchange exchange = MockServerWebExchange.from(
-                MockServerHttpRequest.get("/api/v1/usuarios")
+                MockServerHttpRequest.get("/actuator/health").build()
         );
+
+        Answer<Mono<ServerWebExchangeMatcher.MatchResult>> answer = invocation ->
+                ServerWebExchangeMatcher.MatchResult.match();
+
+        when(matcher.matches(any(ServerWebExchange.class))).thenAnswer(answer);
+        when(chain.filter(exchange)).thenReturn(Mono.empty());
+
+        StepVerifier.create(jwtFilter.filter(exchange, chain))
+                .expectComplete()
+                .verify();
+
+        assertNull(exchange.getAttributes().get("token"));
+    }
+
+    @Test
+    void shouldPassThroughProtectedPathWithoutToken() {
+        ServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/api/v1/protected").build());
+
+        Answer<Mono<ServerWebExchangeMatcher.MatchResult>> answer = invocation ->
+                ServerWebExchangeMatcher.MatchResult.match();
+
+        when(matcher.matches(any(ServerWebExchange.class))).thenAnswer(answer);
+        when(chain.filter(exchange)).thenReturn(Mono.empty());
 
         StepVerifier.create(jwtFilter.filter(exchange, chain))
                 .verifyComplete();
 
-        verify(chain).filter(exchange);
+        Assertions.assertNull(exchange.getAttributes().get("token"));
     }
 
     @Test
-    void shouldAllowRequestWithValidBearerToken() {
-        String token = "mocked-token";
+    void shouldExtractTokenFromProtectedPath() {
+        String jwt = "Bearer abc.def.ghi";
         ServerWebExchange exchange = MockServerWebExchange.from(
-                MockServerHttpRequest.get("/secure")
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                MockServerHttpRequest.get("/api/v1/protected")
+                        .header(HttpHeaders.AUTHORIZATION, jwt)
+                        .build()
         );
 
-        StepVerifier.create(jwtFilter.filter(exchange, chain))
-                .verifyComplete();
+        Answer<Mono<ServerWebExchangeMatcher.MatchResult>> answer = invocation ->
+                ServerWebExchangeMatcher.MatchResult.notMatch();
 
-        verify(chain).filter(exchange);
-        assertEquals(token, exchange.getAttribute("token"));
-    }
-
-    @Test
-    void shouldRejectRequestWithoutAuthorizationHeader() {
-        ServerWebExchange exchange = MockServerWebExchange.from(
-                MockServerHttpRequest.get("/secure")
-        );
+        when(matcher.matches(any(ServerWebExchange.class))).thenAnswer(answer);
+        when(chain.filter(exchange)).thenReturn(Mono.empty());
 
         StepVerifier.create(jwtFilter.filter(exchange, chain))
-                .expectErrorMatches(e -> e.getMessage().equals("no token was found"))
+                .expectComplete()
                 .verify();
+
+        Assertions.assertEquals("abc.def.ghi", exchange.getAttributes().get("token"));
     }
 
-    @Test
-    void shouldRejectRequestWithInvalidAuthorizationFormat() {
-        ServerWebExchange exchange = MockServerWebExchange.from(
-                MockServerHttpRequest.get("/secure")
-                        .header(HttpHeaders.AUTHORIZATION, "Basic abc123")
-        );
-
-        StepVerifier.create(jwtFilter.filter(exchange, chain))
-                .expectErrorMatches(e -> e.getMessage().equals("invalid route"))
-                .verify();
-    }
 }

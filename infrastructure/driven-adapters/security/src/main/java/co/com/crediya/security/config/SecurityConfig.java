@@ -11,6 +11,8 @@ import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
+import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
+import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
 
 @Configuration
 @EnableWebFluxSecurity
@@ -36,13 +38,9 @@ public class SecurityConfig {
         return http
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(exchangeSpec -> exchangeSpec
-                        .pathMatchers("/api/v1/login","/swagger-ui.html",
-                                "/swagger-ui/**",
-                                "/v3/api-docs/**",
-                                "/webjars/**",
-                                "/swagger-resources/**").permitAll()
+                        .pathMatchers(PublicPaths.ROUTES).permitAll()
                         .anyExchange().authenticated())
-                .addFilterAfter(jwtFilter, SecurityWebFiltersOrder.FIRST)
+                .addFilterAfter(jwtFilter, SecurityWebFiltersOrder.AUTHORIZATION)
                 .securityContextRepository(securityContextRepository)
                 .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
                 .formLogin(ServerHttpSecurity.FormLoginSpec::disable)
@@ -52,4 +50,10 @@ public class SecurityConfig {
                 )
                 .build();
     }
+
+    @Bean
+    public ServerWebExchangeMatcher publicPathsMatcher() {
+        return ServerWebExchangeMatchers.pathMatchers(PublicPaths.ROUTES);
+    }
+
 }

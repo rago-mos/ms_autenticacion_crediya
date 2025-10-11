@@ -1,5 +1,5 @@
 server:
-  port: ${SERVER_PORT}
+  port: "${SERVER_PORT}"
 spring:
   application:
     name: "ms_autenticacion_crediya"
@@ -14,7 +14,6 @@ spring:
   flyway:
     enabled: true
     baseline-on-migrate: true
-    # Flyway usará su propio DataSource JDBC si se provee esta URL
     url: "jdbc:mysql://${adapters.r2dbc.host}:${adapters.r2dbc.port}/${adapters.r2dbc.database}?serverTimezone=America/Bogota&useSSL=false&allowPublicKeyRetrieval=true"
     user: "${adapters.r2dbc.username}"
     password: "${adapters.r2dbc.password}"
@@ -24,11 +23,11 @@ spring:
       db: "${adapters.r2dbc.database}"
 adapters:
   r2dbc:
-    host: ${MYSQL_HOST:localhost}
-    port: ${MYSQL_PORT:3306}
-    database: ${MYSQL_DATABASE}
-    username: ${MYSQL_USER}
-    password: ${MYSQL_ROOT_PASSWORD}
+    host: "${MYSQL_HOST:localhost}"
+    port: "${MYSQL_PORT:3306}"
+    database: "${MYSQL_DATABASE}"
+    username: "${MYSQL_USER}"
+    password: "${MYSQL_ROOT_PASSWORD}"
 management:
   endpoints:
     web:
@@ -42,23 +41,19 @@ cors:
   allowed-origins: "http://localhost:4200,http://localhost:8002,http://ms_solicitudes:8002"
 logging:
   level:
-    root: INFO
-    org.springframework.web: ERROR
-    com.co.crediya.api: DEBUG
-
-# Swagger
+    root: "INFO"
+    org.springframework.web: "ERROR"
+    com.co.crediya.api: "DEBUG"
 springdoc:
   api-docs:
-    path: /v3/api-docs
+    path: "/v3/api-docs"
   swagger-ui:
-    path: /swagger-ui.html
-    operationsSorter: method
-    tagsSorter: alpha
+    path: "/swagger-ui.html"
+    operationsSorter: "method"
+    tagsSorter: "alpha"
     display-request-duration: true
-    doc-expansion: none
+    doc-expansion: "none"
     filter: true
-
-# JWT
 jwt:
-  secret: ${JWT_SECRET}
-  expiration: ${JWT_EXPIRATION}
+  secret: "${JWT_SECRET}"
+  expiration: "${JWT_EXPIRATION}"

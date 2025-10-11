@@ -94,6 +94,11 @@ tasks.register('jacocoMergedReport', JacocoReport) {
     sourceDirectories.setFrom files(subprojects.sourceSets.main.allSource.srcDirs)
     classDirectories.setFrom files(subprojects.sourceSets.main.output)
     executionData.setFrom project.fileTree(dir: '.', include: '**/build/jacoco/test.exec')
+    classDirectories.setFrom(files(classDirectories.files.collect {
+        fileTree(dir: it, exclude: [
+                '/co/com/crediya/MainApplication.class'
+        ])
+    }))
     reports {
         xml.setRequired true
         csv.setRequired false
